@@ -28,7 +28,7 @@
 
       <form method="post" action="{{ url_for('guess') }}">
         <input type="hidden" name="image_id" value="{{ image_id }}">
-        <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autofocus>
+        <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
         <button type="submit">Guess</button>
       </form>
 

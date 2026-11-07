@@ -6,6 +6,8 @@ A small logo-guessing game. The server shows an image from a brand or product; t
 
 See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 
+**Mobile-first:** Logos is designed for phones first and scaled up to larger screens, so layout, touch targets and performance on small screens take priority in any change.
+
 ## Tech stack
 
 - **Python 3.12** (Vercel's default; pinned in `.python-version`, the code works on newer versions too)
