@@ -1,5 +1,7 @@
 # Logos
 
+[![Vercel status](https://img.shields.io/website?url=https%3A%2F%2Flogos-the-game.vercel.app&up_message=OK&down_message=KO&up_color=brightgreen&down_color=red&label=Vercel)](https://logos-the-game.vercel.app) [![Build status](https://img.shields.io/github/actions/workflow/status/jochettino/logos/ci.yml?branch=main&label=Build)](https://github.com/jochettino/logos/actions/workflows/ci.yml)
+
 A small logo-guessing game. The server shows an image from a brand or product; the player types its name. A correct guess scores a point; either way a new random image follows.
 
 See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
