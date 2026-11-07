@@ -35,6 +35,12 @@ def test_landing_shows_image_and_zero_score(client):
     assert "/image/" in page and "Score: 0 / 0" in page
 
 
+def test_head_request_succeeds_for_uptime_checks(client):
+    response = client.head("/")
+    assert response.status_code == 200
+    assert response.content == b""
+
+
 def test_page_never_contains_the_answer(client):
     assert "Java" not in client.get("/").text
 

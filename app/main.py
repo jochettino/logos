@@ -40,7 +40,8 @@ def create_app(
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
     catalog = game.load_catalog(images_dir, manifest)
 
-    @app.get("/")
+    # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
+    @app.api_route("/", methods=["GET", "HEAD"])
     def index(request: Request):
         session = request.session
         if not catalog:
