@@ -1,0 +1,5 @@
+[
+  {"file": "sample-circle.svg", "answer": "Circle", "aliases": ["Red circle"]},
+  {"file": "sample-square.svg", "answer": "Square", "aliases": ["Blue square"]},
+  {"file": "sample-triangle.svg", "answer": "Triangle", "aliases": ["Green triangle"]}
+]

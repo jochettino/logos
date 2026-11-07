@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logos</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>Logos</h1>
+    {% if empty %}
+      <p>No images configured yet. Add files to <code>app/images/</code> and list them in <code>app/images.json</code>.</p>
+    {% else %}
+      <p class="score">Score: {{ score }} / {{ attempts }}</p>
+
+      {% if result %}
+        {% if result.kind == "correct" %}
+          <p class="msg ok">Correct! It was {{ result.answer }}.</p>
+        {% elif result.kind == "wrong" %}
+          <p class="msg bad">Not quite. The answer was {{ result.answer }}.</p>
+        {% else %}
+          <p class="msg bad">Type a guess first.</p>
+        {% endif %}
+      {% endif %}
+
+      <img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand">
+
+      <form method="post" action="{{ url_for('guess') }}">
+        <input type="hidden" name="image_id" value="{{ image_id }}">
+        <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autofocus>
+        <button type="submit">Guess</button>
+      </form>
+
+      <form method="post" action="{{ url_for('reset') }}">
+        <button type="submit" class="link">Reset score</button>
+      </form>
+    {% endif %}
+  </main>
+</body>
+</html>
