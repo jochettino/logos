@@ -9,4 +9,4 @@
 
    `aliases` is optional. Matching ignores case and extra whitespace, and is otherwise exact.
 
-The app fails at startup with a clear error if an entry is malformed or points to a missing file. The bundled `sample-*.svg` files are placeholders: delete them once you add real logos. Make sure you have the right to use any logo you add.
+The app fails at startup with a clear error if an entry is malformed or points to a missing file. Make sure you have the right to use any logo you add.

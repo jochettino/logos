@@ -1,5 +1,8 @@
 [
-  {"file": "sample-circle.svg", "answer": "Circle", "aliases": ["Red circle"]},
-  {"file": "sample-square.svg", "answer": "Square", "aliases": ["Blue square"]},
-  {"file": "sample-triangle.svg", "answer": "Triangle", "aliases": ["Green triangle"]}
+  {"file": "java.png", "answer": "Java"},
+  {"file": "gradle.png", "answer": "Gradle"},
+  {"file": "docker.png", "answer": "Docker"},
+  {"file": "kubernetes.png", "answer": "Kubernetes", "aliases": ["K8s"]},
+  {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"]},
+  {"file": "kotlin.png", "answer": "Kotlin"}
 ]
