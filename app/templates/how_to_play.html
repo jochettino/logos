@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}How to play · Logos{% endblock %}
+{% block content %}
+    <header><h1>Logos</h1></header>
+    <section class="card note page">
+      <h2>How to play</h2>
+      <ol>
+        <li>You are shown the logo of a brand or product.</li>
+        <li>Type its name and press <b>Guess</b>.</li>
+        <li>Right: you score a point and the next logo appears.</li>
+        <li>Wrong: the game is over, and the answer is not revealed.</li>
+        <li>Name every logo to win.</li>
+      </ol>
+      <p>Capital letters and extra spaces don't matter, but spelling must be exact. Some logos accept more than one name.</p>
+      <p>Every logo appears once per game. Your best score is kept between games.</p>
+    </section>
+    <a class="link" href="{{ url_for('landing') }}">Main menu</a>
+{% endblock %}

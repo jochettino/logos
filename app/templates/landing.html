@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <header class="hero">
+      <img class="logo-mark" src="{{ url_for('static', path='logo.png') }}" alt="" width="160" height="160">
+      <h1>Logos</h1>
+      <p class="tagline">Name that brand.</p>
+    </header>
+
+    <nav class="menu" aria-label="Main menu">
+      <form method="post" action="{{ url_for('new_game') }}">
+        <button type="submit" class="primary">Play</button>
+      </form>
+      <a class="button" href="{{ url_for('how_to_play') }}">How to play</a>
+      <a class="button" href="{{ url_for('about') }}">About</a>
+    </nav>
+{% endblock %}

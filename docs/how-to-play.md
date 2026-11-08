@@ -10,7 +10,7 @@ Logos is a logo-guessing game. You are shown an image that belongs to a company,
 4. **Wrong:** the game is over. The correct answer is not revealed.
 5. **Win:** if you name every image correctly, the game is over and you win.
 6. An empty guess is ignored: the image stays the same and nothing is lost.
-7. Press **Play again** (or **New game** mid-game) to start over with a fresh shuffle.
+7. Press **Play again** (or go to the **Main menu** and choose **Play**) to start over with a fresh shuffle.
 
 ## What counts as correct
 

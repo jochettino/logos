@@ -50,10 +50,22 @@ def create_app(
 
     # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
     @app.api_route("/", methods=["GET", "HEAD"])
-    def index(request: Request):
+    def landing(request: Request):
+        return templates.TemplateResponse(request, "landing.html")
+
+    @app.get("/how-to-play")
+    def how_to_play(request: Request):
+        return templates.TemplateResponse(request, "how_to_play.html")
+
+    @app.get("/about")
+    def about(request: Request):
+        return templates.TemplateResponse(request, "about.html")
+
+    @app.get("/play")
+    def play(request: Request):
         session = request.session
         if not catalog:
-            return templates.TemplateResponse(request, "index.html", {"empty": True})
+            return templates.TemplateResponse(request, "game.html", {"empty": True})
         # Cookies from the endless version have "attempts"; start fresh, keeping their score as best.
         if "seen" not in session or "attempts" in session:
             start_game(session)
@@ -70,7 +82,7 @@ def create_app(
             "total": len(catalog),
             "result": session.pop("result", None),  # shown once, then cleared
         }
-        return templates.TemplateResponse(request, "index.html", context)
+        return templates.TemplateResponse(request, "game.html", context)
 
     @app.post("/guess")
     def guess(request: Request, image_id: Annotated[str, Form()], guess: Annotated[str, Form()] = ""):
@@ -78,28 +90,28 @@ def create_app(
         current = catalog.get(session.get("current") or "")
         # Ignore stale forms (back button, double submit), finished games and blank guesses.
         if session.get("over") or current is None or image_id != current.id:
-            return RedirectResponse("/", status_code=303)
+            return RedirectResponse("/play", status_code=303)
         if not guess.strip():
             session["result"] = {"kind": "blank"}
-            return RedirectResponse("/", status_code=303)
+            return RedirectResponse("/play", status_code=303)
 
         if not game.is_correct(current, guess):
             # Game over: the answer is deliberately not revealed or stored in the cookie.
             session["over"] = "lost"
             session["current"] = None
-            return RedirectResponse("/", status_code=303)
+            return RedirectResponse("/play", status_code=303)
 
         session["score"] = session.get("score", 0) + 1
         session["best"] = max(session.get("best", 0), session["score"])
         session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
         if session["current"] is None:
             session["over"] = "won"
-        return RedirectResponse("/", status_code=303)
+        return RedirectResponse("/play", status_code=303)
 
     @app.post("/new")
     def new_game(request: Request):
         start_game(request.session)
-        return RedirectResponse("/", status_code=303)
+        return RedirectResponse("/play", status_code=303)
 
     @app.get("/image/{image_id}")
     def image(image_id: str):

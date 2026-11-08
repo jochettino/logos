@@ -37,7 +37,7 @@ def multi(tmp_path):
 
 def answer_of(client):
     """Answer of the image currently shown (test-only peek into the catalog)."""
-    return client.catalog[image_id(client.get("/").text)].answer
+    return client.catalog[image_id(client.get("/play").text)].answer
 
 
 def image_id(html: str) -> str:
@@ -53,13 +53,35 @@ def status(html: str) -> tuple[int, int]:
 
 
 def play(client, text):
-    page = client.get("/").text
+    page = client.get("/play").text
     return client.post("/guess", data={"image_id": image_id(page), "guess": text}).text
 
 
-def test_landing_shows_image_and_zero_score(client):
-    page = client.get("/").text
+def test_game_shows_image_and_zero_score(client):
+    page = client.get("/play").text
     assert "/image/" in page and status(page) == (0, 0)
+
+
+def test_landing_shows_menu_and_no_game(client):
+    page = client.get("/").text
+    assert "Logos" in page and "/new" in page and "/how-to-play" in page and "/about" in page
+    assert "/image/" not in page
+
+
+def test_menu_pages_render(client):
+    assert "How to play" in client.get("/how-to-play").text
+    assert "Main menu" in client.get("/about").text
+
+
+def test_game_links_back_to_main_menu(client):
+    page = client.get("/play").text
+    assert "Main menu" in page and "New game" not in page
+
+
+def test_playing_from_menu_starts_fresh_game_keeping_best(multi):
+    play(multi, answer_of(multi))
+    page = multi.post("/new").text
+    assert status(page) == (0, 1)
 
 
 def test_head_request_succeeds_for_uptime_checks(client):
@@ -69,7 +91,7 @@ def test_head_request_succeeds_for_uptime_checks(client):
 
 
 def test_page_never_contains_the_answer(client):
-    assert "Java" not in client.get("/").text
+    assert "Java" not in client.get("/play").text
 
 
 def test_blank_guess_is_ignored(client):
@@ -78,7 +100,7 @@ def test_blank_guess_is_ignored(client):
 
 
 def test_stale_form_is_ignored(client):
-    client.get("/")
+    client.get("/play")
     page = client.post("/guess", data={"image_id": "stale", "guess": "Java"}).text
     assert status(page) == (0, 0) and "/image/" in page
 
@@ -96,7 +118,7 @@ def test_wrong_guess_ends_game_without_revealing_answer(multi):
 
 
 def test_guess_after_game_over_is_ignored(multi):
-    page = multi.get("/").text
+    page = multi.get("/play").text
     item = image_id(page)
     play(multi, "nope")
     page = multi.post("/guess", data={"image_id": item, "guess": "Alpha"}).text
@@ -110,7 +132,7 @@ def test_answer_is_not_stored_in_cookie_after_loss(multi):
 
 
 def test_no_dramatic_message_while_playing_or_on_win(multi):
-    assert "Oh, no!" not in multi.get("/").text
+    assert "Oh, no!" not in multi.get("/play").text
     page = ""
     for _ in range(2):
         page = play(multi, answer_of(multi))
@@ -136,7 +158,7 @@ def test_best_score_only_grows(multi):
     play(multi, "nope")
     multi.post("/new")
     play(multi, "nope")
-    assert status(multi.get("/").text)[1] == 1
+    assert status(multi.get("/play").text)[1] == 1
 
 
 def test_new_game_mid_game_restarts_keeping_best(multi):
@@ -151,18 +173,18 @@ def test_legacy_cookie_starts_fresh_and_keeps_score_as_best(client):
 
     data = base64.b64encode(json.dumps({"score": 5, "attempts": 9, "seen": [], "current": "x"}).encode())
     client.cookies.set("session", TimestampSigner("test").sign(data).decode())
-    assert status(client.get("/").text) == (0, 5)
+    assert status(client.get("/play").text) == (0, 5)
 
 
 def test_image_is_served_and_unknown_id_404s(client):
-    item_id = image_id(client.get("/").text)
+    item_id = image_id(client.get("/play").text)
     assert client.get(f"/image/{item_id}").content == b"\x89PNG"
     assert client.get("/image/nope").status_code == 404
 
 
 def test_empty_catalog_shows_friendly_message(tmp_path):
     app = create_app(tmp_path, tmp_path / "missing.json", secret_key="test")
-    assert "No images configured" in TestClient(app).get("/").text
+    assert "No images configured" in TestClient(app).get("/play").text
 
 
 def test_bundled_sample_catalog_is_valid():
