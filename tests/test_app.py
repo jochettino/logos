@@ -83,9 +83,9 @@ def test_stale_form_is_ignored(client):
     assert status(page) == (0, 0) and "/image/" in page
 
 
-def test_correct_guess_continues_to_next_logo(multi):
+def test_correct_guess_continues_to_next_logo_without_banner(multi):
     page = play(multi, f" {answer_of(multi).lower()} ")
-    assert "Correct!" in page and status(page) == (1, 1) and "/image/" in page
+    assert "Correct!" not in page and status(page) == (1, 1) and "/image/" in page
 
 
 def test_wrong_guess_ends_game_without_revealing_answer(multi):

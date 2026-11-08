@@ -61,7 +61,7 @@ body.won::before { background-image: linear-gradient(var(--yellow) 1px, transpar
 main {
   max-width: 28rem;
   margin: 0 auto;
-  padding: 1rem;
+  padding: .5rem 1rem 1rem;
   /* keep content clear of notches and rounded corners */
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
@@ -69,7 +69,7 @@ main {
   text-align: center;
 }
 
-header { display: flex; flex-direction: column; align-items: center; gap: .75rem; margin: .5rem 0 1.25rem; }
+header { display: flex; flex-direction: column; align-items: center; gap: .75rem; margin: .25rem 0 1.25rem; }
 
 h1 {
   margin: 0;

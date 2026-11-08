@@ -18,7 +18,7 @@ Logos: a logo-guessing game. FastAPI + Jinja2, no JavaScript yet, deployed on Ve
 ## Conventions and constraints
 
 - **Stateless server.** All player state is in the signed session cookie (`score`, `best`, `seen`, `current`, `result`, `over`). No globals, files or DB for per-player data: Vercel instances don't share memory.
-- **Never leak answers to the browser.** Images use opaque ids from `game.make_id`; templates must not render `answer` or `aliases` except in the post-guess result message.
+- **Never leak answers to the browser.** Images use opaque ids from `game.make_id`; templates must not render `answer` or `aliases`.
 - Guess flow is POST -> 303 redirect -> GET (no resubmit on refresh). The form carries `image_id`; stale submissions are ignored.
 - Matching: case-insensitive, whitespace-normalised exact match against the answer or aliases (`game.normalize`). No fuzzy matching, by design.
 - A game is one pass through every image, each shown once. A wrong answer ends it (`over = "lost"`) without revealing or storing the answer; naming them all ends it with `"won"`. `best` survives new games. Cookies from the endless version (with `attempts`) restart fresh, keeping their score as `best`.

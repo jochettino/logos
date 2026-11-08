@@ -91,7 +91,6 @@ def create_app(
 
         session["score"] = session.get("score", 0) + 1
         session["best"] = max(session.get("best", 0), session["score"])
-        session["result"] = {"kind": "correct", "answer": current.answer}
         session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
         if session["current"] is None:
             session["over"] = "won"

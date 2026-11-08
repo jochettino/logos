@@ -25,11 +25,7 @@
     {% else %}
       <div aria-live="polite">
         {% if result %}
-          {% if result.kind == "correct" %}
-            <p class="msg ok">Correct! 🎉 It was {{ result.answer }}.</p>
-          {% else %}
-            <p class="msg bad">Type a guess first.</p>
-          {% endif %}
+          <p class="msg bad">Type a guess first.</p>
         {% endif %}
       </div>
 
