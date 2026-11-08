@@ -7,8 +7,10 @@ Logos is a logo-guessing game. You are shown an image that belongs to a company,
 1. When you open the game, a random image is shown.
 2. Type the name of the brand or product in the box and press **Guess**.
 3. **Correct:** you score a point, and a new random image appears.
-4. **Wrong:** you score nothing. The correct answer is revealed and a new random image appears. There is no second try on the same image.
-5. An empty guess is ignored: it does not count as an attempt and the image stays the same.
+4. **Wrong:** the game is over. The correct answer is not revealed.
+5. **Win:** if you name every image correctly, the game is over and you win.
+6. An empty guess is ignored: the image stays the same and nothing is lost.
+7. Press **Play again** (or **New game** mid-game) to start over with a fresh shuffle.
 
 ## What counts as correct
 
@@ -19,9 +21,9 @@ Logos is a logo-guessing game. You are shown an image that belongs to a company,
 
 ## Score
 
-The header shows `Score: X / Y`: correct answers out of total attempts. Your score is stored in a cookie in your browser, so it is private to you and survives page reloads. **Reset score** clears it.
+The header shows `Score: X · Best: Y`: the correct answers in the current game and your best score across games. Both are stored in a cookie in your browser, so they are private to you and survive page reloads. Starting a new game keeps your best score.
 
 ## Images
 
-- Every image is shown once before any image repeats. After the last one, the cycle starts again.
-- The game is endless.
+- Every image is shown exactly once per game, in random order.
+- A game therefore lasts at most as many rounds as there are images.

@@ -2,7 +2,7 @@
 
 [![Vercel status](https://img.shields.io/website?url=https%3A%2F%2Flogos-the-game.vercel.app&up_message=OK&down_message=KO&up_color=brightgreen&down_color=red&label=Vercel)](https://logos-the-game.vercel.app) [![Build status](https://img.shields.io/github/actions/workflow/status/joshferatu/logos/ci.yml?branch=main&label=Build)](https://github.com/joshferatu/logos/actions/workflows/ci.yml)
 
-A small logo-guessing game. The server shows an image from a brand or product; the player types its name. A correct guess scores a point; either way a new random image follows.
+A small logo-guessing game. The server shows an image from a brand or product; the player types its name. A correct guess scores a point and shows the next image; a wrong guess ends the game. Name every logo to win. The best score is remembered.
 
 See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 
@@ -32,7 +32,7 @@ docs/              Player-facing docs
 
 ### How it works
 
-- State (score, attempts, images already seen, current image) lives in a **signed session cookie**. There is no database and the server keeps no state, which suits Vercel's serverless model.
+- State (score, best score, images already seen, current image, game-over state) lives in a **signed session cookie**. There is no database and the server keeps no state, which suits Vercel's serverless model.
 - Images are served from `/image/{id}` using opaque ids derived from the filename hash, so the page source never reveals the answer. Answers stay on the server.
 - Routes: `GET /` (play), `POST /guess`, `POST /reset`, `GET /image/{id}`.
 

@@ -40,22 +40,15 @@ def test_ids_do_not_leak_answers(catalog):
         assert "java" not in item_id.lower()
 
 
-def test_pick_next_cycles_through_all_before_repeating(catalog):
+def test_pick_next_shows_every_image_once_then_ends(catalog):
     rng = random.Random(1)
     seen: list[str] = []
     picked = []
-    for _ in range(3):
+    for _ in range(len(catalog)):
         choice, seen = game.pick_next(catalog, seen, rng)
         picked.append(choice)
-    assert set(picked) == set(catalog)
-
-
-def test_pick_next_does_not_repeat_immediately_after_reset(catalog):
-    rng = random.Random(2)
-    seen = list(catalog)
-    choice, seen = game.pick_next(catalog, seen, rng)
-    assert choice != list(catalog)[-1]
-    assert seen == [choice]
+    assert sorted(picked) == sorted(catalog)
+    assert game.pick_next(catalog, seen, rng) == (None, seen)
 
 
 def test_missing_manifest_gives_empty_catalog(tmp_path):

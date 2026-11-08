@@ -57,13 +57,27 @@ button.link {
 
 .msg { margin: .5rem 0; font-weight: 600; }
 .msg.ok { color: #1a7f37; }
-.msg.bad { color: #b42318; }
+.drama {
+  font-size: 2.5rem;
+  font-weight: 800;
+  font-style: italic;
+  color: #b42318;
+  margin: 1rem 0 0;
+}
+
+.drama-sub {
+  font-style: italic;
+  color: #b42318;
+  margin: 0 0 .5rem;
+}
+
+.msg.bad, h2.bad { color: #b42318; }
 
 @media (min-width: 600px) {
   main { margin-top: 2rem; }
   h1 { font-size: 2rem; }
   img { max-height: 16rem; }
   /* guess box and button sit side by side */
-  form:first-of-type { flex-direction: row; }
-  form:first-of-type input[type=text] { flex: 1; }
+  form.guess { flex-direction: row; }
+  form.guess input[type=text] { flex: 1; }
 }

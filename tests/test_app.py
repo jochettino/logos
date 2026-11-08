@@ -21,6 +21,24 @@ def client(images):
     return TestClient(create_app(directory, manifest, secret_key="test"))
 
 
+@pytest.fixture
+def multi(tmp_path):
+    entries = []
+    for name in ("Alpha", "Beta"):
+        (tmp_path / f"{name}.png").write_bytes(b"\x89PNG")
+        entries.append({"file": f"{name}.png", "answer": name})
+    manifest = tmp_path / "images.json"
+    manifest.write_text(json.dumps(entries))
+    client = TestClient(create_app(tmp_path, manifest, secret_key="test"))
+    client.catalog = game.load_catalog(tmp_path, manifest)
+    return client
+
+
+def answer_of(client):
+    """Answer of the image currently shown (test-only peek into the catalog)."""
+    return client.catalog[image_id(client.get("/").text)].answer
+
+
 def image_id(html: str) -> str:
     return html.split("/image/")[1].split('"')[0]
 
@@ -32,7 +50,7 @@ def play(client, text):
 
 def test_landing_shows_image_and_zero_score(client):
     page = client.get("/").text
-    assert "/image/" in page and "Score: 0 / 0" in page
+    assert "/image/" in page and "Score: 0 · Best: 0" in page
 
 
 def test_head_request_succeeds_for_uptime_checks(client):
@@ -45,31 +63,86 @@ def test_page_never_contains_the_answer(client):
     assert "Java" not in client.get("/").text
 
 
-def test_correct_guess_scores(client):
-    page = play(client, " java ")
-    assert "Correct!" in page and "Score: 1 / 1" in page
-
-
-def test_wrong_guess_reveals_answer_without_scoring(client):
-    page = play(client, "Jvaa")
-    assert "The answer was Java" in page and "Score: 0 / 1" in page
-
-
-def test_blank_guess_is_not_counted(client):
+def test_blank_guess_is_ignored(client):
     page = play(client, "   ")
-    assert "Type a guess first" in page and "Score: 0 / 0" in page
+    assert "Type a guess first" in page and "Game over" not in page and "/image/" in page
 
 
 def test_stale_form_is_ignored(client):
     client.get("/")
     page = client.post("/guess", data={"image_id": "stale", "guess": "Java"}).text
-    assert "Score: 0 / 0" in page
+    assert "Score: 0 · Best: 0" in page and "/image/" in page
 
 
-def test_reset_clears_score(client):
-    play(client, "Java")
-    page = client.post("/reset").text
-    assert "Score: 0 / 0" in page
+def test_correct_guess_continues_to_next_logo(multi):
+    page = play(multi, f" {answer_of(multi).lower()} ")
+    assert "Correct!" in page and "Score: 1 · Best: 1" in page and "/image/" in page
+
+
+def test_wrong_guess_ends_game_without_revealing_answer(multi):
+    answer = answer_of(multi)
+    page = play(multi, "nope")
+    assert "Oh, no!" in page and "Your streak ends here" in page and "Game over" in page and "Play again" in page and "/image/" not in page
+    assert answer not in page and "The answer was" not in page
+
+
+def test_guess_after_game_over_is_ignored(multi):
+    page = multi.get("/").text
+    item = image_id(page)
+    play(multi, "nope")
+    page = multi.post("/guess", data={"image_id": item, "guess": "Alpha"}).text
+    assert "Game over" in page and "Score: 0" in page
+
+
+def test_answer_is_not_stored_in_cookie_after_loss(multi):
+    answer = answer_of(multi)
+    play(multi, "nope")
+    assert answer not in multi.cookies.get("session", "")
+
+
+def test_no_dramatic_message_while_playing_or_on_win(multi):
+    assert "Oh, no!" not in multi.get("/").text
+    page = ""
+    for _ in range(2):
+        page = play(multi, answer_of(multi))
+    assert "Oh, no!" not in page
+
+
+def test_naming_every_logo_wins(multi):
+    page = ""
+    for _ in range(2):
+        page = play(multi, answer_of(multi))
+    assert "You won!" in page and "Score: 2 · Best: 2" in page and "/image/" not in page
+
+
+def test_best_score_survives_a_new_game(multi):
+    play(multi, answer_of(multi))
+    play(multi, "nope")
+    page = multi.post("/new").text
+    assert "Score: 0 · Best: 1" in page and "/image/" in page
+
+
+def test_best_score_only_grows(multi):
+    play(multi, answer_of(multi))
+    play(multi, "nope")
+    multi.post("/new")
+    play(multi, "nope")
+    assert "Best: 1" in multi.get("/").text
+
+
+def test_new_game_mid_game_restarts_keeping_best(multi):
+    play(multi, answer_of(multi))
+    page = multi.post("/new").text
+    assert "Score: 0 · Best: 1" in page and "Game over" not in page
+
+
+def test_legacy_cookie_starts_fresh_and_keeps_score_as_best(client):
+    from itsdangerous import TimestampSigner
+    import base64
+
+    data = base64.b64encode(json.dumps({"score": 5, "attempts": 9, "seen": [], "current": "x"}).encode())
+    client.cookies.set("session", TimestampSigner("test").sign(data).decode())
+    assert "Score: 0 · Best: 5" in client.get("/").text
 
 
 def test_image_is_served_and_unknown_id_404s(client):

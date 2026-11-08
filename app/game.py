@@ -77,18 +77,15 @@ def pick_next(
     catalog: dict[str, Item],
     seen: list[str],
     rng: random.Random | None = None,
-) -> tuple[str, list[str]]:
+) -> tuple[str | None, list[str]]:
     """Pick a random unseen image id. Returns (id, updated_seen).
 
-    Once every image has been shown the cycle restarts, avoiding an
-    immediate repeat of the last image when there is more than one.
+    Returns (None, seen) once every image has been shown: the game is won.
     """
     rng = rng or random
     seen = [i for i in seen if i in catalog]
     unseen = [i for i in catalog if i not in seen]
     if not unseen:
-        last = seen[-1] if seen else None
-        seen = []
-        unseen = [i for i in catalog if i != last] or list(catalog)
+        return None, seen
     choice = rng.choice(unseen)
     return choice, [*seen, choice]

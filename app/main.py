@@ -40,21 +40,34 @@ def create_app(
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
     catalog = game.load_catalog(images_dir, manifest)
 
+    def start_game(session) -> None:
+        """Begin a fresh game. The best score survives; everything else resets."""
+        session["best"] = max(session.get("best", 0), session.get("score", 0))
+        for key in ("attempts", "result", "over"):
+            session.pop(key, None)
+        session["score"] = 0
+        session["current"], session["seen"] = game.pick_next(catalog, [])
+
     # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
     @app.api_route("/", methods=["GET", "HEAD"])
     def index(request: Request):
         session = request.session
         if not catalog:
             return templates.TemplateResponse(request, "index.html", {"empty": True})
-        if session.get("current") not in catalog:
-            session["current"], session["seen"] = game.pick_next(
-                catalog, session.get("seen", [])
-            )
+        # Cookies from the endless version have "attempts"; start fresh, keeping their score as best.
+        if "seen" not in session or "attempts" in session:
+            start_game(session)
+        elif not session.get("over") and session.get("current") not in catalog:
+            session["current"], session["seen"] = game.pick_next(catalog, session["seen"])
+            if session["current"] is None:
+                session["over"] = "won"
         context = {
             "empty": False,
-            "image_id": session["current"],
+            "over": session.get("over"),
+            "image_id": session.get("current"),
             "score": session.get("score", 0),
-            "attempts": session.get("attempts", 0),
+            "best": max(session.get("best", 0), session.get("score", 0)),
+            "total": len(catalog),
             "result": session.pop("result", None),  # shown once, then cleared
         }
         return templates.TemplateResponse(request, "index.html", context)
@@ -62,27 +75,31 @@ def create_app(
     @app.post("/guess")
     def guess(request: Request, image_id: Annotated[str, Form()], guess: Annotated[str, Form()] = ""):
         session = request.session
-        current = catalog.get(session.get("current", ""))
-        # Ignore stale forms (back button, double submit) and blank guesses.
-        if current is None or image_id != current.id:
+        current = catalog.get(session.get("current") or "")
+        # Ignore stale forms (back button, double submit), finished games and blank guesses.
+        if session.get("over") or current is None or image_id != current.id:
             return RedirectResponse("/", status_code=303)
         if not guess.strip():
             session["result"] = {"kind": "blank"}
             return RedirectResponse("/", status_code=303)
 
-        correct = game.is_correct(current, guess)
-        session["attempts"] = session.get("attempts", 0) + 1
-        if correct:
-            session["score"] = session.get("score", 0) + 1
-        session["result"] = {"kind": "correct" if correct else "wrong", "answer": current.answer}
-        session["current"], session["seen"] = game.pick_next(
-            catalog, session.get("seen", [])
-        )
+        if not game.is_correct(current, guess):
+            # Game over: the answer is deliberately not revealed or stored in the cookie.
+            session["over"] = "lost"
+            session["current"] = None
+            return RedirectResponse("/", status_code=303)
+
+        session["score"] = session.get("score", 0) + 1
+        session["best"] = max(session.get("best", 0), session["score"])
+        session["result"] = {"kind": "correct", "answer": current.answer}
+        session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
+        if session["current"] is None:
+            session["over"] = "won"
         return RedirectResponse("/", status_code=303)
 
-    @app.post("/reset")
-    def reset(request: Request):
-        request.session.clear()
+    @app.post("/new")
+    def new_game(request: Request):
+        start_game(request.session)
         return RedirectResponse("/", status_code=303)
 
     @app.get("/image/{image_id}")

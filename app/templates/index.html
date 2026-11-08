@@ -12,29 +12,39 @@
     {% if empty %}
       <p>No images configured yet. Add files to <code>app/images/</code> and list them in <code>app/images.json</code>.</p>
     {% else %}
-      <p class="score">Score: {{ score }} / {{ attempts }}</p>
+      <p class="score">Score: {{ score }} · Best: {{ best }}</p>
 
       {% if result %}
         {% if result.kind == "correct" %}
-          <p class="msg ok">Correct! It was {{ result.answer }}.</p>
-        {% elif result.kind == "wrong" %}
-          <p class="msg bad">Not quite. The answer was {{ result.answer }}.</p>
+          <p class="msg ok">Correct! 🎉 It was {{ result.answer }}.</p>
         {% else %}
           <p class="msg bad">Type a guess first.</p>
         {% endif %}
       {% endif %}
 
-      <img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand">
+      {% if over %}
+        {% if over == "lost" %}<p class="drama">Oh, no!</p><p class="drama-sub">Your streak ends here… 💔</p>{% endif %}
+        <h2{% if over == "lost" %} class="bad"{% endif %}>{{ "You won!" if over == "won" else "Game over" }}</h2>
+        <p>
+          {% if over == "won" %}You named all {{ total }} logos.{% else %}That was not the right name.{% endif %}
+          Final score: {{ score }}{% if score == best and score > 0 %} (best so far){% endif %}.
+        </p>
+        <form method="post" action="{{ url_for('new_game') }}">
+          <button type="submit">Play again</button>
+        </form>
+      {% else %}
+        <img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand">
 
-      <form method="post" action="{{ url_for('guess') }}">
-        <input type="hidden" name="image_id" value="{{ image_id }}">
-        <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
-        <button type="submit">Guess</button>
-      </form>
+        <form method="post" action="{{ url_for('guess') }}" class="guess">
+          <input type="hidden" name="image_id" value="{{ image_id }}">
+          <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+          <button type="submit">Guess</button>
+        </form>
 
-      <form method="post" action="{{ url_for('reset') }}">
-        <button type="submit" class="link">Reset score</button>
-      </form>
+        <form method="post" action="{{ url_for('new_game') }}">
+          <button type="submit" class="link">New game</button>
+        </form>
+      {% endif %}
     {% endif %}
   </main>
 </body>
