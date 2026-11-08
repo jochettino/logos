@@ -2,43 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a1f">
   <title>Logos</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
 </head>
-<body>
+<body{% if over %} class="{{ over }}"{% endif %}>
   <main>
-    <h1>Logos</h1>
-    {% if empty %}
-      <p>No images configured yet. Add files to <code>app/images/</code> and list them in <code>app/images.json</code>.</p>
-    {% else %}
-      <p class="score">Score: {{ score }} · Best: {{ best }}</p>
-
-      {% if result %}
-        {% if result.kind == "correct" %}
-          <p class="msg ok">Correct! 🎉 It was {{ result.answer }}.</p>
-        {% else %}
-          <p class="msg bad">Type a guess first.</p>
-        {% endif %}
+    <header>
+      <h1>Logos</h1>
+      {% if not empty %}
+        <div class="pills">
+          <span class="pill">Score <b>{{ "%03d"|format(score) }}</b></span>
+          <span class="pill gold">🏆 Best <b>{{ "%03d"|format(best) }}</b></span>
+        </div>
       {% endif %}
+    </header>
+
+    {% if empty %}
+      <p class="card note">No images configured yet. Add files to <code>app/images/</code> and list them in <code>app/images.json</code>.</p>
+    {% else %}
+      <div aria-live="polite">
+        {% if result %}
+          {% if result.kind == "correct" %}
+            <p class="msg ok">Correct! 🎉 It was {{ result.answer }}.</p>
+          {% else %}
+            <p class="msg bad">Type a guess first.</p>
+          {% endif %}
+        {% endif %}
+      </div>
 
       {% if over %}
-        {% if over == "lost" %}<p class="drama">Oh, no!</p><p class="drama-sub">Your streak ends here… 💔</p>{% endif %}
-        <h2{% if over == "lost" %} class="bad"{% endif %}>{{ "You won! 🏆" if over == "won" else "Game over" }}</h2>
-        <p>
-          {% if over == "won" %}You named all {{ total }} logos.{% else %}That was not the right name.{% endif %}
-          Final score: {{ score }}{% if score == best and score > 0 %} (best so far){% endif %}.
-        </p>
-        <form method="post" action="{{ url_for('new_game') }}">
-          <button type="submit">Play again</button>
-        </form>
+        <section class="over">
+          {% if over == "lost" %}
+            <p class="drama">Oh, no!</p>
+            <p class="drama-sub">Your streak ends here… 💔</p>
+            <h2 class="bad">Game over</h2>
+            <p class="lead">That was not the right name.</p>
+          {% else %}
+            <p class="trophy" aria-hidden="true">🏆</p>
+            <h2>You won!</h2>
+            <p class="lead">You named all {{ total }} logos.</p>
+          {% endif %}
+          <p class="final">Final score <b>{{ score }}</b>{% if score == best and score > 0 %} <span class="badge">Best so far</span>{% endif %}</p>
+          <form method="post" action="{{ url_for('new_game') }}">
+            <button type="submit" class="primary">Play again</button>
+          </form>
+        </section>
       {% else %}
-        <img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand">
+        <p class="progress-label">Logo {{ score + 1 }} of {{ total }}</p>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total }}" aria-valuenow="{{ score }}">
+          {% for i in range(total) %}<span class="seg{% if i < score %} done{% elif i == score %} now{% endif %}"></span>{% endfor %}
+        </div>
+
+        <div class="card logo"><img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand"></div>
 
         <form method="post" action="{{ url_for('guess') }}" class="guess">
           <input type="hidden" name="image_id" value="{{ image_id }}">
-          <input type="text" name="guess" placeholder="Brand or product name" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
-          <button type="submit">Guess</button>
+          <input type="text" name="guess" placeholder="Brand or product name" aria-label="Your guess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+          <button type="submit" class="primary">Guess</button>
         </form>
 
         <form method="post" action="{{ url_for('new_game') }}">

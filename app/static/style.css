@@ -1,14 +1,62 @@
-/* Mobile-first: base styles target phones; min-width queries enhance larger screens. */
+/* Mobile-first: base styles target phones; min-width queries enhance larger screens.
+   Look: 80s/90s arcade cabinet meets a game-show stage. Hard shadows, flat neon, no blur. */
 * { box-sizing: border-box; }
 
+:root {
+  --bg: #0a0a1f;
+  --panel: #14143a;
+  --text: #f5f5ff;
+  --muted: #8c8fc4;
+  --cyan: #00f0ff;
+  --magenta: #ff2bd6;
+  --yellow: #ffe600;
+  --green: #39ff14;
+  --red: #ff3131;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Courier New", monospace;
+}
+
 body {
-  font-family: system-ui, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--mono);
   font-size: 1rem;
   line-height: 1.4;
-  margin: 0;
-  background: #fafafa;
-  color: #222;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x: hidden;
 }
+
+/* Retro grid floor along the bottom of the screen. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: auto 0 0 0;
+  height: 45vh;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--magenta) 1px, transparent 1px),
+    linear-gradient(90deg, var(--magenta) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: .35;
+  -webkit-mask-image: linear-gradient(to top, #000, transparent);
+  mask-image: linear-gradient(to top, #000, transparent);
+}
+
+/* CRT scanlines over everything; clicks pass through. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / .22) 2px 3px);
+}
+
+body.lost { background: #1a0508; }
+body.lost::before { background-image: linear-gradient(var(--red) 1px, transparent 1px), linear-gradient(90deg, var(--red) 1px, transparent 1px); }
+body.won { background: #1a1500; }
+body.won::before { background-image: linear-gradient(var(--yellow) 1px, transparent 1px), linear-gradient(90deg, var(--yellow) 1px, transparent 1px); }
 
 main {
   max-width: 28rem;
@@ -21,15 +69,85 @@ main {
   text-align: center;
 }
 
-h1 { font-size: 1.5rem; margin: .5rem 0; }
+header { display: flex; flex-direction: column; align-items: center; gap: .75rem; margin: .5rem 0 1.25rem; }
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--magenta), 6px 6px 0 var(--cyan);
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: .25rem 0;
+  color: var(--yellow);
+  text-shadow: 3px 3px 0 var(--magenta);
+}
+h2.bad { color: var(--red); text-shadow: 3px 3px 0 #5a0000; animation: blink 1s steps(1) infinite; }
+
+/* LED scoreboard */
+.pills { display: flex; gap: .5rem; justify-content: center; }
+.pill {
+  padding: .3rem .75rem;
+  background: #000;
+  border: 2px solid var(--cyan);
+  box-shadow: 3px 3px 0 var(--cyan);
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+.pill b { display: block; font-size: 1.5rem; letter-spacing: .15em; color: var(--green); }
+.pill.gold { border-color: var(--yellow); box-shadow: 3px 3px 0 var(--yellow); color: var(--yellow); }
+.pill.gold b { color: var(--yellow); }
+
+.progress-label { margin: 0 0 .4rem; font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .15em; }
+.progress { display: flex; gap: 4px; }
+.seg { flex: 1; height: .75rem; background: #000; border: 2px solid #2a2a60; }
+.seg.done { background: var(--green); border-color: var(--green); }
+.seg.now { border-color: var(--yellow); animation: blink 1s steps(1) infinite; }
+
+/* Game-show logo stage: a card ringed by chasing marquee bulbs. */
+.card {
+  position: relative;
+  background: #fff;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0 var(--magenta);
+  padding: 1.25rem;
+}
+.card.note { background: var(--panel); border-color: var(--cyan); box-shadow: 6px 6px 0 var(--cyan); color: var(--muted); }
+.card.logo { margin: 1.75rem .75rem; animation: pop-in .3s steps(4); }
+.card.logo::before,
+.card.logo::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  padding: 8px;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--yellow) 0 3px, transparent 4px) 0 0 / 16px 16px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: blink 1s steps(1) infinite;
+}
+/* Second set of bulbs sits half a step over and lights up when the first is off. */
+.card.logo::after { background-position: 8px 8px; animation-delay: -.5s; }
 
 img {
   display: block;
   width: 100%;
   /* leave room for the form and the on-screen keyboard */
-  max-height: 40vh;
+  max-height: 30vh;
   object-fit: contain;
-  margin: 1rem auto;
+  margin: 0 auto;
 }
 
 form { display: flex; flex-direction: column; gap: .75rem; }
@@ -39,45 +157,97 @@ form { display: flex; flex-direction: column; gap: .75rem; }
 input[type=text],
 button {
   font: inherit;
-  min-height: 44px;
+  min-height: 48px;
   padding: .5rem 1rem;
-  border-radius: .5rem;
+  border-radius: 0;
 }
 
-input[type=text] { width: 100%; border: 1px solid #999; background: #fff; }
-button { cursor: pointer; }
+input[type=text] {
+  width: 100%;
+  border: 3px solid var(--cyan);
+  background: #000;
+  color: var(--green);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  caret-color: var(--yellow);
+}
+input[type=text]::placeholder { color: var(--muted); text-transform: none; letter-spacing: 0; font-weight: 400; }
+input[type=text]:focus { outline: none; border-color: var(--yellow); box-shadow: 4px 4px 0 var(--yellow); }
+
+button { cursor: pointer; border: 0; font-weight: 900; text-transform: uppercase; letter-spacing: .12em; }
+button.primary {
+  color: #000;
+  font-size: 1.1rem;
+  background: var(--yellow);
+  border: 3px solid #000;
+  box-shadow: 0 6px 0 var(--magenta);
+  transition: transform .05s, box-shadow .05s;
+}
+/* Chunky arcade button: it sinks when pressed. */
+button.primary:active { transform: translateY(6px); box-shadow: 0 0 0 var(--magenta); }
+button.primary::before { content: "▶ "; }
 
 button.link {
   background: none;
-  border: 0;
-  color: #555;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: .08em;
   text-decoration: underline;
-  margin-top: .5rem;
 }
 
-.msg { margin: .5rem 0; font-weight: 600; }
-.msg.ok { color: #1a7f37; }
+.msg { margin: .5rem 0; padding: .6rem 1rem; border: 3px solid; font-weight: 800; background: #000; }
+.msg.ok { color: var(--green); border-color: var(--green); animation: pop-in .3s steps(4); }
+.msg.bad { color: var(--red); border-color: var(--red); animation: shake .4s steps(4); }
+
+.over { padding-top: 1rem; animation: pop-in .3s steps(4); }
+.lead { color: var(--muted); margin: 0 0 1rem; }
+.final { font-size: 1rem; margin: 0 0 1.5rem; text-transform: uppercase; letter-spacing: .1em; }
+.final b { display: block; font-size: 3rem; color: var(--green); letter-spacing: .15em; }
+.badge {
+  display: inline-block;
+  margin-top: .25rem;
+  padding: .15rem .6rem;
+  background: var(--yellow);
+  color: #000;
+  font-size: .8rem;
+  font-weight: 900;
+  animation: blink 1s steps(1) infinite;
+}
+.trophy { font-size: 5rem; margin: 0; animation: bounce 1s steps(2) infinite; }
+
 .drama {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 3.25rem;
+  font-weight: 900;
   font-style: italic;
-  color: #b42318;
-  margin: 1rem 0 0;
+  text-transform: uppercase;
+  color: var(--red);
+  margin: 0;
+  text-shadow: 4px 4px 0 #5a0000;
+  animation: shake .5s steps(5);
 }
+.drama-sub { font-style: italic; color: var(--red); margin: 0 0 .75rem; }
 
-.drama-sub {
-  font-style: italic;
-  color: #b42318;
-  margin: 0 0 .5rem;
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes shake {
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
 }
+@keyframes bounce { 50% { transform: translateY(-.6rem); } }
 
-.msg.bad, h2.bad { color: #b42318; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 
 @media (min-width: 600px) {
   main { margin-top: 2rem; }
-  h1 { font-size: 2rem; }
+  h1 { font-size: 3.5rem; }
   img { max-height: 16rem; }
   /* guess box and button sit side by side */
   form.guess { flex-direction: row; }
   form.guess input[type=text] { flex: 1; }
+  form.guess button { padding-inline: 2rem; }
 }
