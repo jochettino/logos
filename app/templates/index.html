@@ -24,7 +24,7 @@
 
       {% if over %}
         {% if over == "lost" %}<p class="drama">Oh, no!</p><p class="drama-sub">Your streak ends here… 💔</p>{% endif %}
-        <h2{% if over == "lost" %} class="bad"{% endif %}>{{ "You won!" if over == "won" else "Game over" }}</h2>
+        <h2{% if over == "lost" %} class="bad"{% endif %}>{{ "You won! 🏆" if over == "won" else "Game over" }}</h2>
         <p>
           {% if over == "won" %}You named all {{ total }} logos.{% else %}That was not the right name.{% endif %}
           Final score: {{ score }}{% if score == best and score > 0 %} (best so far){% endif %}.
