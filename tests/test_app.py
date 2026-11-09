@@ -87,6 +87,12 @@ def test_playing_from_menu_starts_fresh_game_keeping_best(multi):
     assert status(page) == (0, 1)
 
 
+def test_guess_field_is_focused_and_inside_a_submit_form(client):
+    page = client.get("/game").text
+    form = page.split('class="guess"')[1].split("</form>")[0]
+    assert 'name="guess" autofocus' in form and 'type="submit"' in form
+
+
 def test_head_request_succeeds_for_uptime_checks(client):
     response = client.head("/")
     assert response.status_code == 200
