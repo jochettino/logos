@@ -23,6 +23,7 @@ class Item:
     answer: str
     aliases: tuple[str, ...] = field(default_factory=tuple)
     category: str | None = None  # not used by the game yet
+    photo: bool = False  # fill the whole card edge to edge instead of sitting on white
 
     def accepted_answers(self) -> set[str]:
         return {normalize(name) for name in (self.answer, *self.aliases)}
@@ -88,6 +89,7 @@ def load_catalog(images_dir: Path, manifest: Path) -> dict[str, Item]:
             answer=entry["answer"],
             aliases=tuple(entry.get("aliases", ())),
             category=category,
+            photo=entry.get("photo", False) is True,
         )
         if item.id in catalog:
             raise CatalogError(f"Duplicate image entry: {entry['file']}")

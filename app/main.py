@@ -97,6 +97,7 @@ def create_app(
             "mode_label": game.MODES[mode].label,
             "over": session.get("over"),
             "image_id": session.get("current"),
+            "photo": getattr(catalog.get(session.get("current") or ""), "photo", False),
             "score": score,
             "best": max(session.get("bests", {}).get(mode, 0), score),
             "total": len(catalog),

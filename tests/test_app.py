@@ -267,3 +267,21 @@ def test_best_score_is_kept_per_mode(mixed):
     assert status(mixed.get("/game").text) == (0, 0)
     mixed.post("/new", data={"mode": "classic"})
     assert status(mixed.get("/game").text) == (0, 2)
+
+
+def test_photo_entries_fill_the_card_and_logos_do_not(tmp_path):
+    (tmp_path / "logo.png").write_bytes(b"\x89PNG")
+    (tmp_path / "person.jpg").write_bytes(b"\xff\xd8")
+    manifest = tmp_path / "images.json"
+    manifest.write_text(json.dumps([
+        {"file": "logo.png", "answer": "Logo"},
+        {"file": "person.jpg", "answer": "Person", "photo": True},
+    ]))
+    catalog = game.load_catalog(tmp_path, manifest)
+    client = TestClient(create_app(tmp_path, manifest, secret_key="test"))
+    client.post("/new", data={"mode": "classic"})
+    for _ in range(2):
+        page = client.get("/game").text
+        item = catalog[image_id(page)]
+        assert ("card logo photo" in page) == item.photo
+        client.post("/guess", data={"image_id": item.id, "guess": item.answer})

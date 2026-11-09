@@ -47,7 +47,7 @@
           {% for i in range(total) %}<span class="seg{% if i < score %} done{% elif i == score %} now{% endif %}"></span>{% endfor %}
         </div>
 
-        <div class="card logo"><img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand"></div>
+        <div class="card logo{% if photo %} photo{% endif %}"><img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand"></div>
 
         <form method="post" action="{{ url_for('guess') }}" class="guess">
           <input type="hidden" name="image_id" value="{{ image_id }}">

@@ -152,6 +152,10 @@ h2.bad { color: var(--red); text-shadow: 3px 3px 0 #5a0000; animation: blink 1s 
 /* Second set of bulbs sits half a step over and lights up when the first is off. */
 .card.logo::after { background-position: 8px 8px; animation-delay: -.5s; }
 
+/* Photos fill the card edge to edge (cropped, never letterboxed on white). */
+.card.photo { padding: 0; }
+.card.photo img { height: 38vh; max-height: none; object-fit: cover; object-position: center 20%; }
+
 img {
   display: block;
   width: 100%;
@@ -298,6 +302,7 @@ a.button:active { transform: translateY(6px); box-shadow: none; }
   h1 { font-size: 3.5rem; }
   .game-header h1 { font-size: 3rem; text-shadow: 3px 3px 0 var(--magenta), 6px 6px 0 var(--cyan); }
   img { max-height: 16rem; }
+  .card.photo img { height: 18rem; }
   /* guess box and button sit side by side */
   form.guess { flex-direction: row; }
   form.guess input[type=text] { flex: 1; }

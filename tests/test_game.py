@@ -105,3 +105,10 @@ def test_modes_select_logos_by_category(tmp_path):
     names = lambda mode: sorted(i.answer for i in game.catalog_for_mode(catalog, mode).values())
     assert names("classic") == ["A", "C"]
     assert names("18plus") == ["A", "B", "C"]
+
+
+def test_photo_defaults_to_false_and_is_read_from_manifest(tmp_path):
+    plain = game.load_catalog(tmp_path, category_manifest(tmp_path, {}))
+    assert next(iter(plain.values())).photo is False
+    photo = game.load_catalog(tmp_path, category_manifest(tmp_path, {"photo": True}))
+    assert next(iter(photo.values())).photo is True
