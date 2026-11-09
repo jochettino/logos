@@ -126,5 +126,11 @@
     "file": "slack.png",
     "answer": "Slack",
     "category": "tech"
+  },
+  {
+    "file": "marlo.jpg",
+    "answer": "Marlo",
+    "category": "adult",
+    "photo": true
   }
 ]
