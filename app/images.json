@@ -190,5 +190,31 @@
     "answer": "Techno Viking",
     "category": "adult",
     "photo": true
+  },
+  {
+    "file": "juan-carlos-i.jpg",
+    "answer": "Juan Carlos I",
+    "aliases": [
+      "Juan Carlos",
+      "Juancar",
+      "Campechano"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "leonardo-dicaprio.jpg",
+    "answer": "Leonardo DiCaprio",
+    "aliases": [
+      "DiCaprio",
+      "Leonardo"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "winrar.png",
+    "answer": "WinRAR",
+    "category": "tech"
   }
 ]
