@@ -68,3 +68,36 @@ def test_entry_without_answer_is_an_error(tmp_path):
     manifest.write_text(json.dumps([{"file": "a.png"}]))
     with pytest.raises(game.CatalogError):
         game.load_catalog(tmp_path, manifest)
+
+
+def special_manifest(tmp_path, special=True):
+    for name in ("a.png", "b.png"):
+        (tmp_path / name).write_bytes(b"x")
+    manifest = tmp_path / "images.json"
+    manifest.write_text(json.dumps([
+        {"file": "a.png", "answer": "Java"},
+        {"file": "b.png", "answer": "JoseCo", "special": special},
+    ]))
+    return manifest
+
+
+def test_special_items_are_included_by_default(tmp_path):
+    catalog = game.load_catalog(tmp_path, special_manifest(tmp_path))
+    assert len(catalog) == 2 and catalog[game.make_id("b.png")].special
+
+
+def test_special_items_are_hidden_when_switched_off(tmp_path):
+    catalog = game.load_catalog(tmp_path, special_manifest(tmp_path), show_special=False)
+    assert list(catalog) == [game.make_id("a.png")]
+
+
+def test_items_are_not_special_unless_marked(tmp_path):
+    catalog = game.load_catalog(tmp_path, special_manifest(tmp_path, special=False), show_special=False)
+    assert len(catalog) == 2
+
+
+def test_special_must_be_a_boolean(tmp_path):
+    manifest = special_manifest(tmp_path)
+    manifest.write_text(json.dumps([{"file": "a.png", "answer": "Java", "special": "true"}]))
+    with pytest.raises(game.CatalogError, match="special"):
+        game.load_catalog(tmp_path, manifest)

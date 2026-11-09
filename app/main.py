@@ -29,16 +29,25 @@ def _secret_key() -> str:
     return secrets.token_urlsafe(32)
 
 
+def _show_special_logos() -> bool:
+    """Special logos are shown unless showSpecialLogos is set to false, 0, no or off."""
+    value = os.environ.get("showSpecialLogos", "true")
+    return value.strip().lower() not in {"false", "0", "no", "off"}
+
+
 def create_app(
     images_dir: Path = IMAGES_DIR,
     manifest: Path = MANIFEST,
     secret_key: str | None = None,
+    show_special_logos: bool | None = None,
 ) -> FastAPI:
     app = FastAPI(title="Logos")
     app.add_middleware(SessionMiddleware, secret_key=secret_key or _secret_key())
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
-    catalog = game.load_catalog(images_dir, manifest)
+    if show_special_logos is None:
+        show_special_logos = _show_special_logos()
+    catalog = game.load_catalog(images_dir, manifest, show_special_logos)
 
     def start_game(session) -> None:
         """Begin a fresh game. The best score survives; everything else resets."""

@@ -35,6 +35,43 @@ def multi(tmp_path):
     return client
 
 
+@pytest.fixture
+def special_images(tmp_path):
+    for name in ("a.png", "b.png"):
+        (tmp_path / name).write_bytes(b"\x89PNG")
+    manifest = tmp_path / "images.json"
+    manifest.write_text(json.dumps([
+        {"file": "a.png", "answer": "Java"},
+        {"file": "b.png", "answer": "JoseCo", "special": True},
+    ]))
+    return tmp_path, manifest
+
+
+def total_logos(client):
+    return int(re.search(r"Logo \d+ of (\d+)", client.get("/play").text).group(1))
+
+
+def test_special_logos_are_shown_by_default(special_images, monkeypatch):
+    monkeypatch.delenv("showSpecialLogos", raising=False)
+    assert total_logos(TestClient(create_app(*special_images, secret_key="test"))) == 2
+
+
+@pytest.mark.parametrize("value", ["false", "FALSE", "0", "off"])
+def test_env_flag_hides_special_logos(special_images, monkeypatch, value):
+    monkeypatch.setenv("showSpecialLogos", value)
+    assert total_logos(TestClient(create_app(*special_images, secret_key="test"))) == 1
+
+
+def test_env_flag_true_shows_special_logos(special_images, monkeypatch):
+    monkeypatch.setenv("showSpecialLogos", "true")
+    assert total_logos(TestClient(create_app(*special_images, secret_key="test"))) == 2
+
+
+def test_hidden_special_logo_is_not_served(special_images):
+    client = TestClient(create_app(*special_images, secret_key="test", show_special_logos=False))
+    assert client.get(f"/image/{game.make_id('b.png')}").status_code == 404
+
+
 def answer_of(client):
     """Answer of the image currently shown (test-only peek into the catalog)."""
     return client.catalog[image_id(client.get("/play").text)].answer
