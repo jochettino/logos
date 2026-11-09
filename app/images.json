@@ -6,5 +6,5 @@
   {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"]},
   {"file": "kotlin.png", "answer": "Kotlin"},
   {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"]},
-  {"file": "pedobear.png", "answer": "JoseCo", "aliases": ["Jose Co"], "special": true}
+  {"file": "pedobear.png", "answer": "Pedobear", "special": true}
 ]
