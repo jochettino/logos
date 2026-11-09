@@ -7,5 +7,7 @@
   {"file": "kotlin.png", "answer": "Kotlin", "category": "tech"},
   {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"], "category": "tech"},
   {"file": "pedobear.png", "answer": "Pedobear", "category": "adult"},
-  {"file": "elfary.jpg", "answer": "El Fary", "aliases": ["Fary"], "category": "adult", "photo": true}
+  {"file": "elfary.jpg", "answer": "El Fary", "aliases": ["Fary"], "category": "adult", "photo": true},
+  {"file": "chanquete.jpg", "answer": "Chanquete", "category": "adult", "photo": true},
+  {"file": "carmen-de-mairena.jpg", "answer": "Carmen De Mairena", "aliases": ["Carmen", "Mairena"], "category": "adult", "photo": true}
 ]
