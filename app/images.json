@@ -121,5 +121,10 @@
       "OpenAI"
     ],
     "category": "tech"
+  },
+  {
+    "file": "slack.png",
+    "answer": "Slack",
+    "category": "tech"
   }
 ]
