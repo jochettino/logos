@@ -87,10 +87,20 @@ def test_playing_from_menu_starts_fresh_game_keeping_best(multi):
     assert status(page) == (0, 1)
 
 
-def test_guess_field_is_focused_and_inside_a_submit_form(client):
+def test_guess_field_is_inside_a_submit_form(client):
     page = client.get("/game").text
     form = page.split('class="guess"')[1].split("</form>")[0]
-    assert 'name="guess" autofocus' in form and 'type="submit"' in form
+    assert 'name="guess"' in form and 'type="submit"' in form
+
+
+def test_guess_field_is_not_autofocused_in_html(client):
+    # Autofocus would pop up the on-screen keyboard on phones; game.js focuses on desktop only.
+    assert "autofocus" not in client.get("/game").text
+
+
+def test_game_page_loads_the_focus_script(client):
+    assert "/static/game.js" in client.get("/game").text
+    assert client.get("/static/game.js").status_code == 200
 
 
 def test_head_request_succeeds_for_uptime_checks(client):

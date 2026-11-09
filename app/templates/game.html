@@ -51,11 +51,14 @@
 
         <form method="post" action="{{ url_for('guess') }}" class="guess">
           <input type="hidden" name="image_id" value="{{ image_id }}">
-          <input type="text" name="guess" autofocus placeholder="Brand or product name" aria-label="Your guess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+          <input type="text" name="guess" placeholder="Brand or product name" aria-label="Your guess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
           <button type="submit" class="primary">Guess</button>
         </form>
 
         <a class="link" href="{{ url_for('landing') }}">Main menu</a>
       {% endif %}
     {% endif %}
+{% endblock %}
+{% block scripts %}
+    <script src="{{ url_for('static', path='game.js') }}" defer></script>
 {% endblock %}
