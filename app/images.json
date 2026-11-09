@@ -152,5 +152,43 @@
     ],
     "category": "adult",
     "photo": true
+  },
+  {
+    "file": "chiquito.jpg",
+    "answer": "Chiquito de la Calzada",
+    "aliases": [
+      "Chiquito"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "ignatius.jpg",
+    "answer": "Ignatius Farray",
+    "aliases": [
+      "Ignatius"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "bluej.png",
+    "answer": "BlueJ",
+    "category": "tech"
+  },
+  {
+    "file": "dimitri.jpg",
+    "answer": "Dimitri",
+    "aliases": [
+      "Dimitri Lo Sabe"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "techno-viking.jpg",
+    "answer": "Techno Viking",
+    "category": "adult",
+    "photo": true
   }
 ]
