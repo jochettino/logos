@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block body_attrs %}{% if over %} class="{{ over }}"{% endif %}{% endblock %}
 {% block content %}
-    <header>
-      <h1>Logos</h1>
+    <header class="game-header">
+      <div class="brand">
+        <img class="brand-icon" src="{{ url_for('static', path='favicon.png') }}" alt="" width="52" height="52">
+        <h1>Logos</h1>
+      </div>
       {% if not empty %}
         <div class="pills">
           <span class="pill">Score <b>{{ "%03d"|format(score) }}</b></span>
