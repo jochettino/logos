@@ -142,5 +142,15 @@
     ],
     "category": "adult",
     "photo": true
+  },
+  {
+    "file": "jesus-gil.jpg",
+    "answer": "Jes\u00fas Gil",
+    "aliases": [
+      "Gil",
+      "Jesus Gil"
+    ],
+    "category": "adult",
+    "photo": true
   }
 ]
