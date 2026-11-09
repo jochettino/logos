@@ -1,13 +1,125 @@
 [
-  {"file": "java.png", "answer": "Java", "category": "tech"},
-  {"file": "gradle.png", "answer": "Gradle", "category": "tech"},
-  {"file": "docker.png", "answer": "Docker", "category": "tech"},
-  {"file": "kubernetes.png", "answer": "Kubernetes", "aliases": ["K8s"], "category": "tech"},
-  {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"], "category": "tech"},
-  {"file": "kotlin.png", "answer": "Kotlin", "category": "tech"},
-  {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"], "category": "tech"},
-  {"file": "pedobear.png", "answer": "Pedobear", "category": "adult"},
-  {"file": "elfary.jpg", "answer": "El Fary", "aliases": ["Fary"], "category": "adult", "photo": true},
-  {"file": "chanquete.jpg", "answer": "Chanquete", "category": "adult", "photo": true},
-  {"file": "carmen-de-mairena.jpg", "answer": "Carmen De Mairena", "aliases": ["Carmen", "Mairena"], "category": "adult", "photo": true}
+  {
+    "file": "java.png",
+    "answer": "Java",
+    "category": "tech"
+  },
+  {
+    "file": "gradle.png",
+    "answer": "Gradle",
+    "category": "tech"
+  },
+  {
+    "file": "docker.png",
+    "answer": "Docker",
+    "category": "tech"
+  },
+  {
+    "file": "kubernetes.png",
+    "answer": "Kubernetes",
+    "aliases": [
+      "K8s"
+    ],
+    "category": "tech"
+  },
+  {
+    "file": "kafka.png",
+    "answer": "Kafka",
+    "aliases": [
+      "Apache Kafka"
+    ],
+    "category": "tech"
+  },
+  {
+    "file": "kotlin.png",
+    "answer": "Kotlin",
+    "category": "tech"
+  },
+  {
+    "file": "postgresql.png",
+    "answer": "PostgreSQL",
+    "aliases": [
+      "Postgres"
+    ],
+    "category": "tech"
+  },
+  {
+    "file": "pedobear.png",
+    "answer": "Pedobear",
+    "category": "adult"
+  },
+  {
+    "file": "elfary.jpg",
+    "answer": "El Fary",
+    "aliases": [
+      "Fary"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "chanquete.jpg",
+    "answer": "Chanquete",
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "carmen-de-mairena.jpg",
+    "answer": "Carmen De Mairena",
+    "aliases": [
+      "Carmen",
+      "Mairena"
+    ],
+    "category": "adult",
+    "photo": true
+  },
+  {
+    "file": "claude.png",
+    "answer": "Claude",
+    "category": "tech"
+  },
+  {
+    "file": "google.png",
+    "answer": "Google",
+    "category": "tech"
+  },
+  {
+    "file": "gmail.png",
+    "answer": "Gmail",
+    "category": "tech"
+  },
+  {
+    "file": "telegram.png",
+    "answer": "Telegram",
+    "category": "tech"
+  },
+  {
+    "file": "bitcoin.png",
+    "answer": "Bitcoin",
+    "aliases": [
+      "BTC"
+    ],
+    "category": "tech"
+  },
+  {
+    "file": "github.png",
+    "answer": "GitHub",
+    "aliases": [
+      "Github"
+    ],
+    "category": "tech"
+  },
+  {
+    "file": "jenkins.png",
+    "answer": "Jenkins",
+    "category": "tech"
+  },
+  {
+    "file": "chatgpt.png",
+    "answer": "ChatGPT",
+    "aliases": [
+      "OpenAI"
+    ],
+    "category": "tech"
+  }
 ]
