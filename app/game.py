@@ -40,7 +40,7 @@ class Mode:
 DEFAULT_CATEGORY = "tech"
 MODES = {
     "classic": Mode("Classic", "Tech logos only", frozenset({"tech"})),
-    "18plus": Mode("18+", "Tech and adult logos", frozenset({"tech", "adult"})),
+    "18plus": Mode("18+", "Adult logos only", frozenset({"adult"})),
 }
 
 

@@ -9,7 +9,7 @@
 
    `aliases` is optional. Matching ignores case and extra whitespace, and is otherwise exact.
 
-   `category` is optional, a string. Game modes pick logos by category: Classic uses `"tech"`, 18+ uses `"tech"` and `"adult"` (see `MODES` in `app/game.py`). A logo without a category counts as `"tech"`.
+   `category` is optional, a string. Game modes pick logos by category: Classic uses `"tech"`, 18+ uses `"adult"` (see `MODES` in `app/game.py`). A logo without a category counts as `"tech"`.
 
    `photo` is optional, `true` or omitted. Logos sit on a white card with padding; a photo (for example a person) should set `"photo": true` so it fills the card edge to edge, cropped to fit, instead of showing white around it.
 

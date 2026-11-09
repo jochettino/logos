@@ -4,7 +4,7 @@ Logos is a logo-guessing game. You are shown an image that belongs to a company,
 
 ## Rules
 
-1. Press **Play** and choose a game: **Classic** (tech logos) or **18+** (tech and adult logos). A random image is shown.
+1. Press **Play** and choose a game: **Classic** (tech logos) or **18+** (adult logos). A random image is shown.
 2. Type the name of the brand or product in the box and press **Guess**.
 3. **Correct:** you score a point, and a new random image appears.
 4. **Wrong:** the game is over. The correct answer is not revealed.

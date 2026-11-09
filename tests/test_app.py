@@ -251,20 +251,22 @@ def test_classic_has_tech_and_uncategorised_logos_only(mixed):
     assert logos_in(mixed, "classic") == 2
 
 
-def test_18plus_adds_adult_logos(mixed):
-    assert logos_in(mixed, "18plus") == 3
+def test_18plus_has_adult_logos_only(mixed):
+    assert logos_in(mixed, "18plus") == 1
 
 
-def test_classic_never_serves_adult_logos(mixed):
-    adult = game.make_id("Beta.png")
+def test_modes_only_serve_their_own_logos(mixed):
+    adult, tech = game.make_id("Beta.png"), game.make_id("Alpha.png")
     mixed.post("/new", data={"mode": "classic"})
     assert mixed.get(f"/image/{adult}").status_code == 404
+    assert mixed.get(f"/image/{tech}").status_code == 200
     mixed.post("/new", data={"mode": "18plus"})
     assert mixed.get(f"/image/{adult}").status_code == 200
+    assert mixed.get(f"/image/{tech}").status_code == 404
 
 
 def test_play_again_keeps_the_mode(mixed):
-    assert logos_in(mixed, "18plus") == 3
+    assert logos_in(mixed, "18plus") == 1
     mixed.post("/guess", data={"image_id": image_id(mixed.get("/game").text), "guess": "nope"})
     page = mixed.get("/game").text
     assert 'name="mode" value="18plus"' in page
