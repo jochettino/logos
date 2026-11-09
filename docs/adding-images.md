@@ -9,6 +9,6 @@
 
    `aliases` is optional. Matching ignores case and extra whitespace, and is otherwise exact.
 
-   `"special": true` is also optional (it must be a JSON boolean, not a string). Special logos are shown by default; set the `showSpecialLogos` environment variable to `false` (or `0`, `no`, `off`) to hide them.
+   `category` is optional, a string such as `"tech"` or `"adult"`. It only labels the logo for now; the game does not use it yet.
 
 The app fails at startup with a clear error if an entry is malformed or points to a missing file. Make sure you have the right to use any logo you add.

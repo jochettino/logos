@@ -22,7 +22,7 @@ class Item:
     path: Path
     answer: str
     aliases: tuple[str, ...] = field(default_factory=tuple)
-    special: bool = False  # hidden from the game when special logos are switched off
+    category: str | None = None  # not used by the game yet
 
     def accepted_answers(self) -> set[str]:
         return {normalize(name) for name in (self.answer, *self.aliases)}
@@ -37,11 +37,8 @@ def make_id(filename: str) -> str:
     return hashlib.sha256(filename.encode()).hexdigest()[:10]
 
 
-def load_catalog(images_dir: Path, manifest: Path, show_special: bool = True) -> dict[str, Item]:
-    """Read the manifest and return items keyed by their opaque id.
-
-    Special items are left out when show_special is False. They are still validated.
-    """
+def load_catalog(images_dir: Path, manifest: Path) -> dict[str, Item]:
+    """Read the manifest and return items keyed by their opaque id."""
     try:
         entries = json.loads(manifest.read_text(encoding="utf-8"))
     except FileNotFoundError:
@@ -53,7 +50,6 @@ def load_catalog(images_dir: Path, manifest: Path, show_special: bool = True) ->
         raise CatalogError(f"{manifest} must contain a JSON list")
 
     catalog: dict[str, Item] = {}
-    seen_ids: set[str] = set()
     for position, entry in enumerate(entries):
         if not isinstance(entry, dict) or not entry.get("file") or not entry.get("answer"):
             raise CatalogError(f"{manifest} entry #{position} needs 'file' and 'answer'")
@@ -62,21 +58,19 @@ def load_catalog(images_dir: Path, manifest: Path, show_special: bool = True) ->
             raise CatalogError(f"Unsupported image type: {entry['file']}")
         if not path.is_file():
             raise CatalogError(f"Image not found: {path}")
-        special = entry.get("special", False)
-        if not isinstance(special, bool):
-            raise CatalogError(f"{manifest} entry #{position}: 'special' must be true or false")
+        category = entry.get("category")
+        if category is not None and not isinstance(category, str):
+            raise CatalogError(f"{manifest} entry #{position}: 'category' must be a string")
         item = Item(
             id=make_id(entry["file"]),
             path=path,
             answer=entry["answer"],
             aliases=tuple(entry.get("aliases", ())),
-            special=special,
+            category=category,
         )
-        if item.id in seen_ids:
+        if item.id in catalog:
             raise CatalogError(f"Duplicate image entry: {entry['file']}")
-        seen_ids.add(item.id)
-        if show_special or not item.special:
-            catalog[item.id] = item
+        catalog[item.id] = item
     return catalog
 
 

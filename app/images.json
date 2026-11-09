@@ -1,10 +1,10 @@
 [
-  {"file": "java.png", "answer": "Java"},
-  {"file": "gradle.png", "answer": "Gradle"},
-  {"file": "docker.png", "answer": "Docker"},
-  {"file": "kubernetes.png", "answer": "Kubernetes", "aliases": ["K8s"]},
-  {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"]},
-  {"file": "kotlin.png", "answer": "Kotlin"},
-  {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"]},
-  {"file": "pedobear.png", "answer": "Pedobear", "special": true}
+  {"file": "java.png", "answer": "Java", "category": "tech"},
+  {"file": "gradle.png", "answer": "Gradle", "category": "tech"},
+  {"file": "docker.png", "answer": "Docker", "category": "tech"},
+  {"file": "kubernetes.png", "answer": "Kubernetes", "aliases": ["K8s"], "category": "tech"},
+  {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"], "category": "tech"},
+  {"file": "kotlin.png", "answer": "Kotlin", "category": "tech"},
+  {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"], "category": "tech"},
+  {"file": "pedobear.png", "answer": "Pedobear", "category": "adult"}
 ]
