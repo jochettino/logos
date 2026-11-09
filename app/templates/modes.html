@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Choose a game · Logos{% endblock %}
+{% block content %}
+    <header><h1>Logos</h1></header>
+    <h2>Choose a game</h2>
+    <nav class="menu" aria-label="Game modes">
+      {% for key, mode in modes.items() %}
+        <form method="post" action="{{ url_for('new_game') }}">
+          <input type="hidden" name="mode" value="{{ key }}">
+          <button type="submit" class="primary">{{ mode.label }}</button>
+          <p class="mode-desc">{{ mode.description }}</p>
+        </form>
+      {% endfor %}
+    </nav>
+    <a class="link" href="{{ url_for('landing') }}">Main menu</a>
+{% endblock %}

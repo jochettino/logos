@@ -7,7 +7,7 @@
     </header>
 
     <nav class="menu" aria-label="Main menu">
-      <form method="post" action="{{ url_for('new_game') }}">
+      <form method="get" action="{{ url_for('choose_mode') }}">
         <button type="submit" class="primary">Play</button>
       </form>
       <a class="button" href="{{ url_for('how_to_play') }}">How to play</a>

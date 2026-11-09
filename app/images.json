@@ -6,5 +6,6 @@
   {"file": "kafka.png", "answer": "Kafka", "aliases": ["Apache Kafka"], "category": "tech"},
   {"file": "kotlin.png", "answer": "Kotlin", "category": "tech"},
   {"file": "postgresql.png", "answer": "PostgreSQL", "aliases": ["Postgres"], "category": "tech"},
-  {"file": "pedobear.png", "answer": "Pedobear", "category": "adult"}
+  {"file": "pedobear.png", "answer": "Pedobear", "category": "adult"},
+  {"file": "elfary.jpg", "answer": "El Fary", "aliases": ["Fary"]}
 ]

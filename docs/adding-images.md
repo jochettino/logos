@@ -9,6 +9,6 @@
 
    `aliases` is optional. Matching ignores case and extra whitespace, and is otherwise exact.
 
-   `category` is optional, a string such as `"tech"` or `"adult"`. It only labels the logo for now; the game does not use it yet.
+   `category` is optional, a string. Game modes pick logos by category: Classic uses `"tech"`, 18+ uses `"tech"` and `"adult"` (see `MODES` in `app/game.py`). A logo without a category counts as `"tech"`.
 
 The app fails at startup with a clear error if an entry is malformed or points to a missing file. Make sure you have the right to use any logo you add.

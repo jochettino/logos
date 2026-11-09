@@ -39,14 +39,24 @@ def create_app(
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
     catalog = game.load_catalog(images_dir, manifest)
+    mode_catalogs = {mode: game.catalog_for_mode(catalog, mode) for mode in game.MODES}
 
-    def start_game(session) -> None:
-        """Begin a fresh game. The best score survives; everything else resets."""
-        session["best"] = max(session.get("best", 0), session.get("score", 0))
+    def session_catalog(session) -> dict[str, game.Item]:
+        """Items of the mode the player picked (empty if they have not picked one)."""
+        return mode_catalogs.get(session.get("mode"), {})
+
+    def start_game(session, mode: str) -> None:
+        """Begin a fresh game in the given mode. Best scores survive; everything else resets."""
+        bests = dict(session.get("bests", {}))
+        previous = session.get("mode", "classic")  # cookies from before modes were classic games
+        bests[previous] = max(bests.get(previous, 0), session.get("score", 0))
+        bests["classic"] = max(bests.get("classic", 0), session.pop("best", 0))
+        session["bests"] = bests
         for key in ("attempts", "result", "over"):
             session.pop(key, None)
+        session["mode"] = mode
         session["score"] = 0
-        session["current"], session["seen"] = game.pick_next(catalog, [])
+        session["current"], session["seen"] = game.pick_next(mode_catalogs[mode], [])
 
     # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
     @app.api_route("/", methods=["GET", "HEAD"])
@@ -62,23 +72,33 @@ def create_app(
         return templates.TemplateResponse(request, "about.html")
 
     @app.get("/play")
-    def play(request: Request):
+    def choose_mode(request: Request):
+        return templates.TemplateResponse(request, "modes.html", {"modes": game.MODES})
+
+    @app.get("/game")
+    def play_game(request: Request):
         session = request.session
+        mode = session.get("mode")
+        if mode not in game.MODES:
+            return RedirectResponse("/play", status_code=303)
+        catalog = mode_catalogs[mode]
         if not catalog:
             return templates.TemplateResponse(request, "game.html", {"empty": True})
-        # Cookies from the endless version have "attempts"; start fresh, keeping their score as best.
-        if "seen" not in session or "attempts" in session:
-            start_game(session)
+        if "seen" not in session:
+            start_game(session, mode)
         elif not session.get("over") and session.get("current") not in catalog:
             session["current"], session["seen"] = game.pick_next(catalog, session["seen"])
             if session["current"] is None:
                 session["over"] = "won"
+        score = session.get("score", 0)
         context = {
             "empty": False,
+            "mode": mode,
+            "mode_label": game.MODES[mode].label,
             "over": session.get("over"),
             "image_id": session.get("current"),
-            "score": session.get("score", 0),
-            "best": max(session.get("best", 0), session.get("score", 0)),
+            "score": score,
+            "best": max(session.get("bests", {}).get(mode, 0), score),
             "total": len(catalog),
             "result": session.pop("result", None),  # shown once, then cleared
         }
@@ -87,35 +107,40 @@ def create_app(
     @app.post("/guess")
     def guess(request: Request, image_id: Annotated[str, Form()], guess: Annotated[str, Form()] = ""):
         session = request.session
+        catalog = session_catalog(session)
         current = catalog.get(session.get("current") or "")
         # Ignore stale forms (back button, double submit), finished games and blank guesses.
         if session.get("over") or current is None or image_id != current.id:
-            return RedirectResponse("/play", status_code=303)
+            return RedirectResponse("/game", status_code=303)
         if not guess.strip():
             session["result"] = {"kind": "blank"}
-            return RedirectResponse("/play", status_code=303)
+            return RedirectResponse("/game", status_code=303)
 
         if not game.is_correct(current, guess):
             # Game over: the answer is deliberately not revealed or stored in the cookie.
             session["over"] = "lost"
             session["current"] = None
-            return RedirectResponse("/play", status_code=303)
+            return RedirectResponse("/game", status_code=303)
 
         session["score"] = session.get("score", 0) + 1
-        session["best"] = max(session.get("best", 0), session["score"])
+        bests = dict(session.get("bests", {}))
+        bests[session["mode"]] = max(bests.get(session["mode"], 0), session["score"])
+        session["bests"] = bests
         session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
         if session["current"] is None:
             session["over"] = "won"
-        return RedirectResponse("/play", status_code=303)
+        return RedirectResponse("/game", status_code=303)
 
     @app.post("/new")
-    def new_game(request: Request):
-        start_game(request.session)
-        return RedirectResponse("/play", status_code=303)
+    def new_game(request: Request, mode: Annotated[str, Form()] = ""):
+        if mode not in game.MODES:
+            return RedirectResponse("/play", status_code=303)
+        start_game(request.session, mode)
+        return RedirectResponse("/game", status_code=303)
 
     @app.get("/image/{image_id}")
-    def image(image_id: str):
-        item = catalog.get(image_id)
+    def image(request: Request, image_id: str):
+        item = session_catalog(request.session).get(image_id)
         if item is None:
             raise HTTPException(status_code=404)
         media_type = mimetypes.guess_type(item.path.name)[0] or "application/octet-stream"

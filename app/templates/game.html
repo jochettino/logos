@@ -37,11 +37,12 @@
           {% endif %}
           <p class="final">Final score <b>{{ score }}</b>{% if score == best and score > 0 %} <span class="badge">Best so far</span>{% endif %}</p>
           <form method="post" action="{{ url_for('new_game') }}">
+            <input type="hidden" name="mode" value="{{ mode }}">
             <button type="submit" class="primary">Play again</button>
           </form>
         </section>
       {% else %}
-        <p class="progress-label">Logo {{ score + 1 }} of {{ total }}</p>
+        <p class="progress-label">{{ mode_label }} · Logo {{ score + 1 }} of {{ total }}</p>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total }}" aria-valuenow="{{ score }}">
           {% for i in range(total) %}<span class="seg{% if i < score %} done{% elif i == score %} now{% endif %}"></span>{% endfor %}
         </div>

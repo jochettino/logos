@@ -90,3 +90,18 @@ def test_category_is_read_from_manifest(tmp_path):
 def test_category_must_be_a_string(tmp_path):
     with pytest.raises(game.CatalogError, match="category"):
         game.load_catalog(tmp_path, category_manifest(tmp_path, {"category": 5}))
+
+
+def test_modes_select_logos_by_category(tmp_path):
+    for name in ("a.png", "b.png", "c.png"):
+        (tmp_path / name).write_bytes(b"x")
+    manifest = tmp_path / "images.json"
+    manifest.write_text(json.dumps([
+        {"file": "a.png", "answer": "A", "category": "tech"},
+        {"file": "b.png", "answer": "B", "category": "adult"},
+        {"file": "c.png", "answer": "C"},
+    ]))
+    catalog = game.load_catalog(tmp_path, manifest)
+    names = lambda mode: sorted(i.answer for i in game.catalog_for_mode(catalog, mode).values())
+    assert names("classic") == ["A", "C"]
+    assert names("18plus") == ["A", "B", "C"]

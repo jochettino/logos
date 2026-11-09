@@ -28,6 +28,27 @@ class Item:
         return {normalize(name) for name in (self.answer, *self.aliases)}
 
 
+@dataclass(frozen=True)
+class Mode:
+    label: str
+    description: str
+    categories: frozenset[str]
+
+
+# Logos without a category count as DEFAULT_CATEGORY.
+DEFAULT_CATEGORY = "tech"
+MODES = {
+    "classic": Mode("Classic", "Tech logos only", frozenset({"tech"})),
+    "18plus": Mode("18+", "Tech and adult logos", frozenset({"tech", "adult"})),
+}
+
+
+def catalog_for_mode(catalog: dict[str, Item], mode: str) -> dict[str, Item]:
+    """The items that belong in the given game mode."""
+    categories = MODES[mode].categories
+    return {i: item for i, item in catalog.items() if (item.category or DEFAULT_CATEGORY) in categories}
+
+
 def normalize(text: str) -> str:
     """Trim, collapse inner whitespace and ignore case."""
     return " ".join(text.split()).casefold()
