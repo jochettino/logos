@@ -132,5 +132,15 @@
     "answer": "Marlo",
     "category": "adult",
     "photo": true
+  },
+  {
+    "file": "fraga.jpg",
+    "answer": "Fraga",
+    "aliases": [
+      "Manuel Fraga",
+      "Manuel Fraga Iribarne"
+    ],
+    "category": "adult",
+    "photo": true
   }
 ]
