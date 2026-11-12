@@ -99,6 +99,30 @@ def test_pages_have_link_preview_metadata(client):
     assert '<meta name="twitter:card" content="summary_large_image">' in page
 
 
+def test_page_links_a_standalone_manifest(client):
+    page = client.get("/").text
+    assert 'rel="manifest" href="http://testserver/static/manifest.webmanifest"' in page
+    assert '<meta name="mobile-web-app-capable" content="yes">' in page
+
+
+def test_manifest_is_served_as_manifest_json(client):
+    response = client.get("/static/manifest.webmanifest")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/manifest+json")
+    manifest = response.json()
+    assert manifest["display"] == "standalone"
+    assert manifest["start_url"] == "/"
+    purposes = {icon["purpose"] for icon in manifest["icons"]}
+    assert purposes == {"any", "maskable"}
+
+
+@pytest.mark.parametrize("icon", ["icon-192.png", "icon-512.png", "icon-maskable-512.png"])
+def test_manifest_icons_are_served(client, icon):
+    response = client.get(f"/static/{icon}")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/png"
+
+
 def test_preview_image_is_served(client):
     response = client.get("/static/og-image.png")
     assert response.status_code == 200

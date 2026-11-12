@@ -19,6 +19,12 @@
   <meta name="twitter:title" content="{{ self.meta_title() }}">
   <meta name="twitter:description" content="{{ self.meta_description() }}">
   <meta name="twitter:image" content="{{ request.url_for('static', path='og-image.png') }}">
+  <link rel="manifest" href="{{ url_for('static', path='manifest.webmanifest') }}">
+  <!-- Installed-app hints: Android uses the manifest, iOS reads these tags. -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Logos">
   <link rel="icon" type="image/png" href="{{ url_for('static', path='favicon.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', path='apple-touch-icon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">

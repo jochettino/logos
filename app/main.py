@@ -13,6 +13,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app import game
 
+# Serve the PWA manifest with its registered type; some systems do not know .webmanifest.
+mimetypes.add_type("application/manifest+json", ".webmanifest")
+
 BASE_DIR = Path(__file__).parent
 CATALOG_DIR = BASE_DIR / "catalog"
 
