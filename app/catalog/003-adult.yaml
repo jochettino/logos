@@ -72,3 +72,18 @@ logos:
       - Schwarzenegger
       - Chuache
     photo: true
+  - file: ma-barracus.jpg
+    answer: M.A. Barracus
+    aliases:
+      - MA
+      - Mr T
+    photo: true
+  - file: jean-claude-van-damme.jpg
+    answer: Jean Claude Van Damme
+    aliases:
+      - Jean Claude
+      - Van Damme
+    photo: true
+  - file: perro-muchacho.jpg
+    answer: Perro Muchacho
+    photo: true
