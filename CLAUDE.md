@@ -10,9 +10,9 @@ Logos: a logo-guessing game. FastAPI + Jinja2, no JavaScript yet, deployed on Ve
 
 ## Layout
 
-- `app/game.py`: pure logic (catalog, matching, image picking). Keep it free of FastAPI imports.
+- `app/game.py`: pure logic (catalog loading, matching, image picking). Keep it free of FastAPI imports.
 - `app/main.py`: `create_app()` factory + routes. Module-level `app` is the Vercel entrypoint (`[tool.vercel] entrypoint` in `pyproject.toml`).
-- `app/images.json` + `app/images/`: the catalog. Edit these to add images; steps are in `docs/adding-images.md`.
+- `app/catalog/`: one JSON file per category (game mode), named `001-<id>.json` so the prefix sets the menu order, plus `app/catalog/images/` with the image files. Edit these to add images; steps are in `docs/adding-images.md`.
 - `tests/`: `test_game.py` for logic, `test_app.py` for HTTP behavior via `TestClient`.
 
 ## Conventions and constraints

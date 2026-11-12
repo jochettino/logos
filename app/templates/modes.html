@@ -4,11 +4,11 @@
     <header><h1>Logos</h1></header>
     <h2>Choose a game</h2>
     <nav class="menu" aria-label="Game modes">
-      {% for key, mode in modes.items() %}
+      {% for category in categories %}
         <form method="post" action="{{ url_for('new_game') }}">
-          <input type="hidden" name="mode" value="{{ key }}">
-          <button type="submit" class="primary">{{ mode.label }}</button>
-          <p class="mode-desc">{{ mode.description }}</p>
+          <input type="hidden" name="mode" value="{{ category.id }}">
+          <button type="submit" class="primary">{{ category.title }}</button>
+          {% if category.description %}<p class="mode-desc">{{ category.description }}</p>{% endif %}
         </form>
       {% endfor %}
     </nav>

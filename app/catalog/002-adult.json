@@ -1,0 +1,104 @@
+{
+  "id": "adult",
+  "title": "+18",
+  "description": "Spanish classics, memes and the odd celebrity",
+  "logos": [
+    {
+      "file": "pedobear.png",
+      "answer": "Pedobear"
+    },
+    {
+      "file": "elfary.jpg",
+      "answer": "El Fary",
+      "aliases": [
+        "Fary"
+      ],
+      "photo": true
+    },
+    {
+      "file": "chanquete.jpg",
+      "answer": "Chanquete",
+      "photo": true
+    },
+    {
+      "file": "carmen-de-mairena.jpg",
+      "answer": "Carmen De Mairena",
+      "aliases": [
+        "Carmen",
+        "Mairena"
+      ],
+      "photo": true
+    },
+    {
+      "file": "marlo.jpg",
+      "answer": "Marlo",
+      "photo": true
+    },
+    {
+      "file": "fraga.jpg",
+      "answer": "Fraga",
+      "aliases": [
+        "Manuel Fraga",
+        "Manuel Fraga Iribarne"
+      ],
+      "photo": true
+    },
+    {
+      "file": "jesus-gil.jpg",
+      "answer": "Jesús Gil",
+      "aliases": [
+        "Gil",
+        "Jesus Gil"
+      ],
+      "photo": true
+    },
+    {
+      "file": "chiquito.jpg",
+      "answer": "Chiquito de la Calzada",
+      "aliases": [
+        "Chiquito"
+      ],
+      "photo": true
+    },
+    {
+      "file": "ignatius.jpg",
+      "answer": "Ignatius Farray",
+      "aliases": [
+        "Ignatius"
+      ],
+      "photo": true
+    },
+    {
+      "file": "dimitri.jpg",
+      "answer": "Dimitri",
+      "aliases": [
+        "Dimitri Lo Sabe"
+      ],
+      "photo": true
+    },
+    {
+      "file": "techno-viking.jpg",
+      "answer": "Techno Viking",
+      "photo": true
+    },
+    {
+      "file": "juan-carlos-i.jpg",
+      "answer": "Juan Carlos I",
+      "aliases": [
+        "Juan Carlos",
+        "Juancar",
+        "Campechano"
+      ],
+      "photo": true
+    },
+    {
+      "file": "leonardo-dicaprio.jpg",
+      "answer": "Leonardo DiCaprio",
+      "aliases": [
+        "DiCaprio",
+        "Leonardo"
+      ],
+      "photo": true
+    }
+  ]
+}

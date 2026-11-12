@@ -8,33 +8,46 @@ from app import game
 from app.main import create_app
 
 
-@pytest.fixture
-def images(tmp_path):
-    (tmp_path / "only.png").write_bytes(b"\x89PNG")
-    manifest = tmp_path / "images.json"
-    manifest.write_text(json.dumps([{"file": "only.png", "answer": "Java", "aliases": ["Java cup"]}]))
-    return tmp_path, manifest
+def write_category(directory, name, title, logos, description=""):
+    """Write <name>.json plus the images it lists into a catalog directory."""
+    (directory / "images").mkdir(parents=True, exist_ok=True)
+    for logo in logos:
+        (directory / "images" / logo["file"]).write_bytes(b"\x89PNG")
+    category_id = name.split("-", 1)[1]
+    (directory / f"{name}.json").write_text(json.dumps({
+        "id": category_id,
+        "title": title,
+        "description": description,
+        "logos": logos,
+    }))
+    return directory
 
 
 @pytest.fixture
-def client(images):
-    directory, manifest = images
-    client = TestClient(create_app(directory, manifest, secret_key="test"))
-    client.post("/new", data={"mode": "classic"})
+def catalog_dir(tmp_path):
+    return write_category(
+        tmp_path,
+        "001-tech",
+        "Tech",
+        [{"file": "only.png", "answer": "Java", "aliases": ["Java cup"]}],
+        description="Tech logos only",
+    )
+
+
+@pytest.fixture
+def client(catalog_dir):
+    client = TestClient(create_app(catalog_dir, secret_key="test"))
+    client.post("/new", data={"mode": "tech"})
     return client
 
 
 @pytest.fixture
 def multi(tmp_path):
-    entries = []
-    for name in ("Alpha", "Beta"):
-        (tmp_path / f"{name}.png").write_bytes(b"\x89PNG")
-        entries.append({"file": f"{name}.png", "answer": name})
-    manifest = tmp_path / "images.json"
-    manifest.write_text(json.dumps(entries))
-    client = TestClient(create_app(tmp_path, manifest, secret_key="test"))
-    client.post("/new", data={"mode": "classic"})
-    client.catalog = game.load_catalog(tmp_path, manifest)
+    logos = [{"file": "Alpha.png", "answer": "Alpha"}, {"file": "Beta.png", "answer": "Beta"}]
+    write_category(tmp_path, "001-tech", "Tech", logos)
+    client = TestClient(create_app(tmp_path, secret_key="test"))
+    client.post("/new", data={"mode": "tech"})
+    client.catalog = {item_id: item for category in game.load_catalog(tmp_path) for item_id, item in category.items.items()}
     return client
 
 
@@ -83,7 +96,7 @@ def test_game_links_back_to_main_menu(client):
 
 def test_playing_from_menu_starts_fresh_game_keeping_best(multi):
     play(multi, answer_of(multi))
-    page = multi.post("/new", data={"mode": "classic"}).text
+    page = multi.post("/new", data={"mode": "tech"}).text
     assert status(page) == (0, 1)
 
 
@@ -168,21 +181,21 @@ def test_naming_every_logo_wins(multi):
 def test_best_score_survives_a_new_game(multi):
     play(multi, answer_of(multi))
     play(multi, "nope")
-    page = multi.post("/new", data={"mode": "classic"}).text
+    page = multi.post("/new", data={"mode": "tech"}).text
     assert status(page) == (0, 1) and "/image/" in page
 
 
 def test_best_score_only_grows(multi):
     play(multi, answer_of(multi))
     play(multi, "nope")
-    multi.post("/new", data={"mode": "classic"})
+    multi.post("/new", data={"mode": "tech"})
     play(multi, "nope")
     assert status(multi.get("/game").text)[1] == 1
 
 
 def test_new_game_mid_game_restarts_keeping_best(multi):
     play(multi, answer_of(multi))
-    page = multi.post("/new", data={"mode": "classic"}).text
+    page = multi.post("/new", data={"mode": "tech"}).text
     assert status(page) == (0, 1) and "Game over" not in page
 
 
@@ -193,7 +206,7 @@ def test_legacy_cookie_starts_fresh_and_keeps_score_as_best(client):
     data = base64.b64encode(json.dumps({"score": 5, "attempts": 9, "seen": [], "current": "x"}).encode())
     client.cookies.clear()
     client.cookies.set("session", TimestampSigner("test").sign(data).decode())
-    client.post("/new", data={"mode": "classic"})
+    client.post("/new", data={"mode": "tech"})
     assert status(client.get("/game").text) == (0, 5)
 
 
@@ -203,28 +216,30 @@ def test_image_is_served_and_unknown_id_404s(client):
     assert client.get("/image/nope").status_code == 404
 
 
-def test_empty_catalog_shows_friendly_message(tmp_path):
-    app = create_app(tmp_path, tmp_path / "missing.json", secret_key="test")
-    client = TestClient(app)
-    client.post("/new", data={"mode": "classic"})
+def test_category_without_logos_shows_friendly_message(tmp_path):
+    write_category(tmp_path, "001-tech", "Tech", [])
+    client = TestClient(create_app(tmp_path, secret_key="test"))
+    client.post("/new", data={"mode": "tech"})
     assert "No images configured" in client.get("/game").text
 
 
-def test_bundled_sample_catalog_is_valid():
-    from app.main import IMAGES_DIR, MANIFEST
-    assert len(game.load_catalog(IMAGES_DIR, MANIFEST)) >= 1
+def test_bundled_catalog_is_valid():
+    from app.main import CATALOG_DIR
+
+    categories = game.load_catalog(CATALOG_DIR)
+    assert [category.id for category in categories] == ["tech", "adult"]
+    assert all(category.items for category in categories)
 
 
 @pytest.fixture
 def mixed(tmp_path):
-    """One logo per category: tech, adult and uncategorised."""
-    entries = []
-    for name, category in (("Alpha", "tech"), ("Beta", "adult"), ("Gamma", None)):
-        (tmp_path / f"{name}.png").write_bytes(b"\x89PNG")
-        entries.append({"file": f"{name}.png", "answer": name, **({"category": category} if category else {})})
-    manifest = tmp_path / "images.json"
-    manifest.write_text(json.dumps(entries))
-    return TestClient(create_app(tmp_path, manifest, secret_key="test"))
+    """Two categories with different logos each."""
+    write_category(
+        tmp_path, "001-tech", "Tech",
+        [{"file": "Alpha.png", "answer": "Alpha"}, {"file": "Gamma.png", "answer": "Gamma"}],
+    )
+    write_category(tmp_path, "002-adult", "+18", [{"file": "Beta.png", "answer": "Beta"}])
+    return TestClient(create_app(tmp_path, secret_key="test"))
 
 
 def logos_in(client, mode):
@@ -232,9 +247,15 @@ def logos_in(client, mode):
     return int(re.search(r"Logo \d+ of (\d+)", client.get("/game").text).group(1))
 
 
-def test_mode_screen_offers_both_games(client):
+def test_mode_screen_uses_category_title_and_description(client):
     page = client.get("/play").text
-    assert "Classic" in page and "18+" in page and 'value="classic"' in page and 'value="18plus"' in page
+    assert "Tech" in page and 'value="tech"' in page and "Tech logos only" in page
+
+
+def test_mode_screen_lists_categories_in_file_order(mixed):
+    page = mixed.get("/play").text
+    assert page.index('value="tech"') < page.index('value="adult"')
+    assert "+18" in page
 
 
 def test_game_without_a_mode_redirects_to_mode_screen(mixed):
@@ -247,57 +268,55 @@ def test_unknown_mode_is_rejected(mixed):
     assert response.headers["location"] == "/play"
 
 
-def test_classic_has_tech_and_uncategorised_logos_only(mixed):
-    assert logos_in(mixed, "classic") == 2
-
-
-def test_18plus_has_adult_logos_only(mixed):
-    assert logos_in(mixed, "18plus") == 1
+def test_each_category_plays_only_its_logos(mixed):
+    assert logos_in(mixed, "tech") == 2
+    assert logos_in(mixed, "adult") == 1
 
 
 def test_modes_only_serve_their_own_logos(mixed):
     adult, tech = game.make_id("Beta.png"), game.make_id("Alpha.png")
-    mixed.post("/new", data={"mode": "classic"})
+    mixed.post("/new", data={"mode": "tech"})
     assert mixed.get(f"/image/{adult}").status_code == 404
     assert mixed.get(f"/image/{tech}").status_code == 200
-    mixed.post("/new", data={"mode": "18plus"})
+    mixed.post("/new", data={"mode": "adult"})
     assert mixed.get(f"/image/{adult}").status_code == 200
     assert mixed.get(f"/image/{tech}").status_code == 404
 
 
 def test_play_again_keeps_the_mode(mixed):
-    assert logos_in(mixed, "18plus") == 1
+    assert logos_in(mixed, "adult") == 1
     mixed.post("/guess", data={"image_id": image_id(mixed.get("/game").text), "guess": "nope"})
     page = mixed.get("/game").text
-    assert 'name="mode" value="18plus"' in page
-    mixed.post("/new", data={"mode": "18plus"})
-    assert "18+" in mixed.get("/game").text
+    assert 'name="mode" value="adult"' in page
+    mixed.post("/new", data={"mode": "adult"})
+    assert "+18" in mixed.get("/game").text
 
 
 def test_best_score_is_kept_per_mode(mixed):
-    mixed.post("/new", data={"mode": "classic"})
+    mixed.post("/new", data={"mode": "tech"})
     for _ in range(2):
         page = mixed.get("/game").text
         answer = next(n for n in ("Alpha", "Beta", "Gamma") if game.make_id(f"{n}.png") == image_id(page))
         mixed.post("/guess", data={"image_id": image_id(page), "guess": answer})
     assert status(mixed.get("/game").text) == (2, 2)
-    mixed.post("/new", data={"mode": "18plus"})
+    mixed.post("/new", data={"mode": "adult"})
     assert status(mixed.get("/game").text) == (0, 0)
-    mixed.post("/new", data={"mode": "classic"})
+    mixed.post("/new", data={"mode": "tech"})
     assert status(mixed.get("/game").text) == (0, 2)
 
 
 def test_photo_entries_fill_the_card_and_logos_do_not(tmp_path):
-    (tmp_path / "logo.png").write_bytes(b"\x89PNG")
-    (tmp_path / "person.jpg").write_bytes(b"\xff\xd8")
-    manifest = tmp_path / "images.json"
-    manifest.write_text(json.dumps([
-        {"file": "logo.png", "answer": "Logo"},
-        {"file": "person.jpg", "answer": "Person", "photo": True},
-    ]))
-    catalog = game.load_catalog(tmp_path, manifest)
-    client = TestClient(create_app(tmp_path, manifest, secret_key="test"))
-    client.post("/new", data={"mode": "classic"})
+    write_category(
+        tmp_path, "001-tech", "Tech",
+        [{"file": "logo.png", "answer": "Logo"}, {"file": "person.jpg", "answer": "Person", "photo": True}],
+    )
+    catalog = {
+        item_id: item
+        for category in game.load_catalog(tmp_path)
+        for item_id, item in category.items.items()
+    }
+    client = TestClient(create_app(tmp_path, secret_key="test"))
+    client.post("/new", data={"mode": "tech"})
     for _ in range(2):
         page = client.get("/game").text
         item = catalog[image_id(page)]

@@ -17,7 +17,7 @@ Logos is a logo-guessing game. You are shown an image that belongs to a company,
 - Upper and lower case do not matter: `java`, `Java` and `JAVA` are the same.
 - Extra spaces around or inside your answer are ignored: `  java  ` is fine.
 - Spelling must otherwise be exact. `Jvaa` is wrong.
-- Some images accept more than one name (for example `Coke` as well as `Coca-Cola`). These alternatives are defined per image in `app/images.json`.
+- Some images accept more than one name (for example `Coke` as well as `Coca-Cola`). These alternatives are defined per image in `app/catalog/`.
 
 ## Score
 

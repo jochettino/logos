@@ -12,7 +12,7 @@ See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 
 - **Python 3.12** (Vercel's default; pinned in `.python-version`, the code works on newer versions too)
 - **FastAPI** for the server, **Jinja2** for server-rendered HTML
-- Plain HTML and a small CSS file. No JavaScript yet: every guess is a form POST followed by a redirect (full page reload). JavaScript can be added later to cut server calls.
+- Plain HTML and a small CSS file. Every guess is a form POST followed by a redirect (full page reload), so JavaScript is only used to focus the answer field on desktop.
 - **pytest** + **httpx2** for tests, **uv** for environments and dependencies
 - Deployed on **Vercel**
 
@@ -22,8 +22,8 @@ See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 app/
   main.py          FastAPI app factory and routes
   game.py          Pure game logic (catalog loading, answer matching, image picking)
-  images.json      Manifest: image file -> answer (+ optional aliases)
-  images/          The image files
+  catalog/         One JSON file per category (game mode), plus catalog/images/
+                   with the image files
   templates/       Jinja2 templates
   static/          CSS
 tests/             pytest suite
@@ -34,7 +34,8 @@ docs/              Player-facing docs
 
 - State (score, best score, images already seen, current image, game-over state) lives in a **signed session cookie**. There is no database and the server keeps no state, which suits Vercel's serverless model.
 - Images are served from `/image/{id}` using opaque ids derived from the filename hash, so the page source never reveals the answer. Answers stay on the server.
-- Routes: `GET /` (play), `POST /guess`, `POST /reset`, `GET /image/{id}`.
+- Routes: `GET /` (menu), `GET /play` (choose a category), `GET /game`, `POST /guess`, `POST /new`, `GET /image/{id}`.
+- The category files in `app/catalog/` define the game modes: their file name prefix sets the menu order, `title` and `description` fill the buttons, and `logos` lists the images.
 
 ## Adding images
 

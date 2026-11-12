@@ -14,8 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app import game
 
 BASE_DIR = Path(__file__).parent
-IMAGES_DIR = BASE_DIR / "images"
-MANIFEST = BASE_DIR / "images.json"
+CATALOG_DIR = BASE_DIR / "catalog"
 
 
 def _secret_key() -> str:
@@ -30,33 +29,33 @@ def _secret_key() -> str:
 
 
 def create_app(
-    images_dir: Path = IMAGES_DIR,
-    manifest: Path = MANIFEST,
+    catalog_dir: Path = CATALOG_DIR,
     secret_key: str | None = None,
 ) -> FastAPI:
     app = FastAPI(title="Logos")
     app.add_middleware(SessionMiddleware, secret_key=secret_key or _secret_key())
     app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
-    catalog = game.load_catalog(images_dir, manifest)
-    mode_catalogs = {mode: game.catalog_for_mode(catalog, mode) for mode in game.MODES}
+    categories = game.load_catalog(catalog_dir)
+    by_id = {category.id: category for category in categories}
 
     def session_catalog(session) -> dict[str, game.Item]:
         """Items of the mode the player picked (empty if they have not picked one)."""
-        return mode_catalogs.get(session.get("mode"), {})
+        category = by_id.get(session.get("mode"))
+        return category.items if category else {}
 
     def start_game(session, mode: str) -> None:
         """Begin a fresh game in the given mode. Best scores survive; everything else resets."""
         bests = dict(session.get("bests", {}))
-        previous = session.get("mode", "classic")  # cookies from before modes were classic games
+        previous = session.get("mode", "tech")  # cookies from before modes were tech games
         bests[previous] = max(bests.get(previous, 0), session.get("score", 0))
-        bests["classic"] = max(bests.get("classic", 0), session.pop("best", 0))
+        bests["tech"] = max(bests.get("tech", 0), session.pop("best", 0))
         session["bests"] = bests
         for key in ("attempts", "result", "over"):
             session.pop(key, None)
         session["mode"] = mode
         session["score"] = 0
-        session["current"], session["seen"] = game.pick_next(mode_catalogs[mode], [])
+        session["current"], session["seen"] = game.pick_next(by_id[mode].items, [])
 
     # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
     @app.api_route("/", methods=["GET", "HEAD"])
@@ -73,15 +72,15 @@ def create_app(
 
     @app.get("/play")
     def choose_mode(request: Request):
-        return templates.TemplateResponse(request, "modes.html", {"modes": game.MODES})
+        return templates.TemplateResponse(request, "modes.html", {"categories": categories})
 
     @app.get("/game")
     def play_game(request: Request):
         session = request.session
         mode = session.get("mode")
-        if mode not in game.MODES:
+        if mode not in by_id:
             return RedirectResponse("/play", status_code=303)
-        catalog = mode_catalogs[mode]
+        catalog = by_id[mode].items
         if not catalog:
             return templates.TemplateResponse(request, "game.html", {"empty": True})
         if "seen" not in session:
@@ -91,13 +90,14 @@ def create_app(
             if session["current"] is None:
                 session["over"] = "won"
         score = session.get("score", 0)
+        current = catalog.get(session.get("current") or "")
         context = {
             "empty": False,
             "mode": mode,
-            "mode_label": game.MODES[mode].label,
+            "mode_label": by_id[mode].title,
             "over": session.get("over"),
             "image_id": session.get("current"),
-            "photo": getattr(catalog.get(session.get("current") or ""), "photo", False),
+            "photo": current.photo if current else False,
             "score": score,
             "best": max(session.get("bests", {}).get(mode, 0), score),
             "total": len(catalog),
@@ -134,7 +134,7 @@ def create_app(
 
     @app.post("/new")
     def new_game(request: Request, mode: Annotated[str, Form()] = ""):
-        if mode not in game.MODES:
+        if mode not in by_id:
             return RedirectResponse("/play", status_code=303)
         start_game(request.session, mode)
         return RedirectResponse("/game", status_code=303)
