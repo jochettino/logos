@@ -99,6 +99,25 @@ def test_about_credits_thesvg_and_the_brands(client):
     assert 'href="https://github.com/glincker/thesvg"' in page
 
 
+def test_share_button_appears_after_a_loss_with_score_and_category(multi):
+    page = play(multi, "nope")
+    assert "Share my score" in page
+    assert 'data-share-text="I scored 0 in Tech at Logos' in page
+    assert 'data-share-url="http://testserver/"' in page
+
+
+def test_share_button_appears_on_a_win(multi):
+    page = ""
+    for _ in range(2):
+        page = play(multi, answer_of(multi))
+    assert "You won!" in page and "Share my score" in page
+    assert 'data-share-text="I scored 2 in Tech at Logos' in page
+
+
+def test_no_share_button_while_playing(client):
+    assert "Share my score" not in client.get("/game").text
+
+
 def test_game_links_back_to_main_menu(client):
     page = client.get("/game").text
     assert "Main menu" in page and "New game" not in page

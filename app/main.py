@@ -102,6 +102,8 @@ def create_app(
             "best": max(session.get("bests", {}).get(mode, 0), score),
             "total": len(catalog),
             "result": session.pop("result", None),  # shown once, then cleared
+            "share_url": str(request.url_for("landing")),
+            "share_text": f"I scored {score} in {by_id[mode].title} at Logos 🎯 Can you beat me?",
         }
         return templates.TemplateResponse(request, "game.html", context)
 

@@ -40,6 +40,18 @@
             <input type="hidden" name="mode" value="{{ mode }}">
             <button type="submit" class="primary">Play again</button>
           </form>
+
+          <div class="share">
+            <button type="button" class="secondary share-button"
+                    data-share-text="{{ share_text }}" data-share-url="{{ share_url }}">
+              <span aria-hidden="true">🔗</span> Share my score
+            </button>
+            <noscript>
+              <style>.share-button { display: none; }</style>
+              <a class="button" href="https://wa.me/?text={{ (share_text ~ ' ' ~ share_url)|urlencode }}">Share on WhatsApp</a>
+            </noscript>
+            <p class="share-status" role="status" aria-live="polite"></p>
+          </div>
         </section>
       {% else %}
         <p class="progress-label">{{ mode_label }} · Logo {{ score + 1 }} of {{ total }}</p>

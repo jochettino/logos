@@ -213,6 +213,19 @@ button.link {
   text-decoration: underline;
 }
 
+button.secondary {
+  color: var(--cyan);
+  font-size: 1rem;
+  background: #000;
+  border: 3px solid var(--cyan);
+  box-shadow: 0 6px 0 var(--cyan);
+  transition: transform .05s, box-shadow .05s;
+}
+button.secondary:active { transform: translateY(6px); box-shadow: none; }
+
+.share { margin-top: .75rem; }
+.share-status { margin: .75rem 0 0; font-size: .85rem; color: var(--muted); overflow-wrap: anywhere; }
+
 a.button, a.link {
   display: flex;
   align-items: center;
