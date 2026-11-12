@@ -64,9 +64,27 @@ def test_normalize_ignores_case_and_spaces():
     assert game.normalize("  JaVa   Cup ") == "javacup"
 
 
+def test_normalize_ignores_punctuation():
+    assert game.normalize("Mercedes-Benz") == game.normalize("Mercedes Benz")
+    assert game.normalize("AT&T") == "att"
+    assert game.normalize("Coca-Cola") == game.normalize("coca cola")
+
+
 def test_normalize_ignores_accents():
     assert game.normalize("Jesús Gil") == game.normalize("Jesus Gil")
     assert game.normalize("  ÁÉÍÓÚ  ") == "aeiou"
+
+
+def test_punctuation_in_an_answer_does_not_matter(tmp_path):
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "a.png").write_bytes(b"x")
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
+        "id": "tech", "title": "Tech", "logos": [{"file": "a.png", "answer": "Mercedes-Benz"}],
+    }))
+    item = next(iter(game.load_catalog(tmp_path)[0].items.values()))
+    assert game.is_correct(item, "Mercedes Benz")
+    assert game.is_correct(item, "mercedesbenz")
+    assert not game.is_correct(item, "Mercedes")
 
 
 def test_spacing_inside_a_name_does_not_matter(items):

@@ -46,14 +46,15 @@ class Category:
 
 
 def normalize(text: str) -> str:
-    """Fold a name for comparison: ignore case, accents and every space.
+    """Fold a name for comparison: keep only letters and digits, lowercased.
 
-    "Leonardo Di Caprio", "leonardo dicaprio" and "Leonardo DiCaprio" all match, and
-    "Jesús Gil" matches "Jesus Gil". Spelling is otherwise exact.
+    Case, accents, spaces and punctuation are ignored, so "Mercedes Benz",
+    "mercedes-benz" and "Mercedes-Benz" all match, and "Jesús Gil" matches
+    "Jesus Gil". What is left must be spelled exactly.
     """
     decomposed = unicodedata.normalize("NFKD", text)
     plain = "".join(char for char in decomposed if not unicodedata.combining(char))
-    return "".join(plain.casefold().split())
+    return "".join(char for char in plain.casefold() if char.isalnum())
 
 
 def make_id(filename: str) -> str:

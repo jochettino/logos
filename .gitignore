@@ -4,3 +4,6 @@ __pycache__/
 .pytest_cache/
 .env
 .vercel/
+
+# Local-only notes, not published
+docs/local/

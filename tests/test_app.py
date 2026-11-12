@@ -233,6 +233,15 @@ def test_bundled_catalog_is_valid():
     assert all(category.items for category in categories)
 
 
+def test_bundled_catalog_has_no_redundant_aliases():
+    from app.main import CATALOG_DIR
+
+    for category in game.load_catalog(CATALOG_DIR):
+        for item in category.items.values():
+            forms = [game.normalize(name) for name in (item.answer, *item.aliases)]
+            assert len(forms) == len(set(forms)), f"{item.answer} has an alias that normalises the same"
+
+
 @pytest.fixture
 def mixed(tmp_path):
     """Two categories with different logos each."""

@@ -47,7 +47,7 @@ Field summary:
 | `logos` | file | yes | List of logos; may be empty. |
 | `file` | logo | yes | Image in `app/catalog/images/` (png, jpg, jpeg, gif, webp, svg, avif). |
 | `answer` | logo | yes | The name players type. Matching ignores case and extra spaces. |
-| `aliases` | logo | no | Other names that also count. Only needed for genuinely different names, not spellings that differ by case, accents or spaces. |
+| `aliases` | logo | no | Other names that also count. Only needed for genuinely different names, not spellings that differ by case, accents, spaces or punctuation. |
 | `photo` | logo | no | `true` for photos. Logos sit on a white card with padding; a photo fills the card edge to edge, cropped to fit, instead of showing white around it. |
 
 ## Adding a logo to an existing category

@@ -36,8 +36,6 @@ logos:
       - BTC
   - file: github.png
     answer: GitHub
-    aliases:
-      - Github
   - file: jenkins.png
     answer: Jenkins
   - file: chatgpt.png
