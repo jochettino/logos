@@ -1,4 +1,6 @@
 import json
+
+import yaml
 import re
 
 import pytest
@@ -9,12 +11,12 @@ from app.main import create_app
 
 
 def write_category(directory, name, title, logos, description=""):
-    """Write <name>.json plus the images it lists into a catalog directory."""
+    """Write <name>.yaml plus the images it lists into a catalog directory."""
     (directory / "images").mkdir(parents=True, exist_ok=True)
     for logo in logos:
         (directory / "images" / logo["file"]).write_bytes(b"\x89PNG")
     category_id = name.split("-", 1)[1]
-    (directory / f"{name}.json").write_text(json.dumps({
+    (directory / f"{name}.yaml").write_text(yaml.safe_dump({
         "id": category_id,
         "title": title,
         "description": description,

@@ -1,7 +1,7 @@
-import json
 import random
 
 import pytest
+import yaml
 
 from app import game
 
@@ -12,7 +12,7 @@ def catalog_dir(tmp_path):
         (tmp_path / "images").mkdir(exist_ok=True)
         (tmp_path / "images" / name).write_bytes(b"x")
     (tmp_path / "images").mkdir(exist_ok=True)
-    (tmp_path / "001-tech.json").write_text(json.dumps({
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
         "id": "tech",
         "title": "Tech",
         "description": "Tech logos",
@@ -21,7 +21,7 @@ def catalog_dir(tmp_path):
             {"file": "b.jpg", "answer": "Coca-Cola", "aliases": ["Coke"]},
         ],
     }))
-    (tmp_path / "002-adult.json").write_text(json.dumps({
+    (tmp_path / "002-adult.yaml").write_text(yaml.safe_dump({
         "id": "adult",
         "title": "+18",
         "description": "Adult logos",
@@ -41,7 +41,7 @@ def items(categories):
 
 
 def test_categories_are_ordered_by_file_prefix(catalog_dir):
-    (catalog_dir / "000-first.json").write_text(json.dumps({"id": "first", "title": "First", "logos": []}))
+    (catalog_dir / "000-first.yaml").write_text(yaml.safe_dump({"id": "first", "title": "First", "logos": []}))
     assert [c.id for c in game.load_catalog(catalog_dir)] == ["first", "tech", "adult"]
 
 
@@ -96,43 +96,43 @@ def test_empty_catalog_dir_gives_no_categories(tmp_path):
 
 
 def test_bad_file_name_is_an_error(catalog_dir):
-    (catalog_dir / "tech.json").write_text(json.dumps({"id": "tech", "title": "Tech", "logos": []}))
-    with pytest.raises(game.CatalogError, match="001-tech.json"):
+    (catalog_dir / "tech.yaml").write_text(yaml.safe_dump({"id": "tech", "title": "Tech", "logos": []}))
+    with pytest.raises(game.CatalogError, match="001-tech.yaml"):
         game.load_catalog(catalog_dir)
 
 
 def test_id_must_match_the_file_name(catalog_dir):
-    (catalog_dir / "003-misc.json").write_text(json.dumps({"id": "other", "title": "Misc", "logos": []}))
+    (catalog_dir / "003-misc.yaml").write_text(yaml.safe_dump({"id": "other", "title": "Misc", "logos": []}))
     with pytest.raises(game.CatalogError, match="'id' must be 'misc'"):
         game.load_catalog(catalog_dir)
 
 
 def test_missing_title_is_an_error(catalog_dir):
-    (catalog_dir / "003-misc.json").write_text(json.dumps({"id": "misc", "logos": []}))
+    (catalog_dir / "003-misc.yaml").write_text(yaml.safe_dump({"id": "misc", "logos": []}))
     with pytest.raises(game.CatalogError, match="title"):
         game.load_catalog(catalog_dir)
 
 
 def test_duplicate_order_prefix_is_an_error(catalog_dir):
-    (catalog_dir / "002-misc.json").write_text(json.dumps({"id": "misc", "title": "Misc", "logos": []}))
+    (catalog_dir / "002-misc.yaml").write_text(yaml.safe_dump({"id": "misc", "title": "Misc", "logos": []}))
     with pytest.raises(game.CatalogError, match="order 002"):
         game.load_catalog(catalog_dir)
 
 
-def test_invalid_json_is_an_error(catalog_dir):
-    (catalog_dir / "003-misc.json").write_text("{not json")
-    with pytest.raises(game.CatalogError, match="not valid JSON"):
+def test_invalid_yaml_is_an_error(catalog_dir):
+    (catalog_dir / "003-misc.yaml").write_text("id: [unclosed")
+    with pytest.raises(game.CatalogError, match="not valid YAML"):
         game.load_catalog(catalog_dir)
 
 
 def test_logos_must_be_a_list(catalog_dir):
-    (catalog_dir / "003-misc.json").write_text(json.dumps({"id": "misc", "title": "Misc", "logos": {}}))
+    (catalog_dir / "003-misc.yaml").write_text(yaml.safe_dump({"id": "misc", "title": "Misc", "logos": {}}))
     with pytest.raises(game.CatalogError, match="'logos' list"):
         game.load_catalog(catalog_dir)
 
 
 def test_missing_image_file_is_an_error(tmp_path):
-    (tmp_path / "001-tech.json").write_text(json.dumps({
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
         "id": "tech", "title": "Tech", "logos": [{"file": "ghost.png", "answer": "Ghost"}],
     }))
     with pytest.raises(game.CatalogError, match="Image not found"):
@@ -142,17 +142,17 @@ def test_missing_image_file_is_an_error(tmp_path):
 def test_entry_without_answer_is_an_error(tmp_path):
     (tmp_path / "images").mkdir()
     (tmp_path / "images" / "a.png").write_bytes(b"x")
-    (tmp_path / "001-tech.json").write_text(json.dumps({
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
         "id": "tech", "title": "Tech", "logos": [{"file": "a.png"}],
     }))
-    with pytest.raises(game.CatalogError, match="needs 'file' and 'answer'"):
+    with pytest.raises(game.CatalogError, match="'answer' must be a non-empty string"):
         game.load_catalog(tmp_path)
 
 
 def test_unsupported_image_type_is_an_error(tmp_path):
     (tmp_path / "images").mkdir()
     (tmp_path / "images" / "a.txt").write_bytes(b"x")
-    (tmp_path / "001-tech.json").write_text(json.dumps({
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
         "id": "tech", "title": "Tech", "logos": [{"file": "a.txt", "answer": "A"}],
     }))
     with pytest.raises(game.CatalogError, match="Unsupported image type"):
@@ -163,8 +163,8 @@ def test_the_same_image_cannot_be_listed_twice(tmp_path):
     (tmp_path / "images").mkdir()
     (tmp_path / "images" / "a.png").write_bytes(b"x")
     logo = {"file": "a.png", "answer": "A"}
-    (tmp_path / "001-tech.json").write_text(json.dumps({"id": "tech", "title": "Tech", "logos": [logo]}))
-    (tmp_path / "002-misc.json").write_text(json.dumps({"id": "misc", "title": "Misc", "logos": [logo]}))
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({"id": "tech", "title": "Tech", "logos": [logo]}))
+    (tmp_path / "002-misc.yaml").write_text(yaml.safe_dump({"id": "misc", "title": "Misc", "logos": [logo]}))
     with pytest.raises(game.CatalogError, match="Duplicate image entry"):
         game.load_catalog(tmp_path)
 
@@ -173,7 +173,7 @@ def test_photo_defaults_to_false_and_is_read_from_the_file(tmp_path):
     (tmp_path / "images").mkdir()
     (tmp_path / "images" / "a.png").write_bytes(b"x")
     (tmp_path / "images" / "b.png").write_bytes(b"x")
-    (tmp_path / "001-tech.json").write_text(json.dumps({
+    (tmp_path / "001-tech.yaml").write_text(yaml.safe_dump({
         "id": "tech", "title": "Tech", "logos": [
             {"file": "a.png", "answer": "A"},
             {"file": "b.png", "answer": "B", "photo": True},
@@ -182,3 +182,50 @@ def test_photo_defaults_to_false_and_is_read_from_the_file(tmp_path):
     items = game.load_catalog(tmp_path)[0].items
     assert items[game.make_id("a.png")].photo is False
     assert items[game.make_id("b.png")].photo is True
+
+
+def test_yml_extension_is_supported(tmp_path):
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "a.png").write_bytes(b"x")
+    (tmp_path / "001-tech.yml").write_text(yaml.safe_dump({
+        "id": "tech", "title": "Tech", "logos": [{"file": "a.png", "answer": "A"}],
+    }))
+    assert [category.id for category in game.load_catalog(tmp_path)] == ["tech"]
+
+
+@pytest.mark.parametrize("answer", ["NO", "2024", "null"])
+def test_yaml_non_string_answers_are_rejected(tmp_path, answer):
+    # Unquoted NO, 2024 and null are not strings in YAML; accepting them would break matching.
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "a.png").write_bytes(b"x")
+    (tmp_path / "001-tech.yaml").write_text(
+        f"id: tech\ntitle: Tech\nlogos:\n  - file: a.png\n    answer: {answer}\n"
+    )
+    with pytest.raises(game.CatalogError, match="'answer' must be a non-empty string"):
+        game.load_catalog(tmp_path)
+
+
+def test_photo_must_be_a_boolean(tmp_path):
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "a.png").write_bytes(b"x")
+    (tmp_path / "001-tech.yaml").write_text(
+        "id: tech\ntitle: Tech\nlogos:\n  - file: a.png\n    answer: A\n    photo: 'yes'\n"
+    )
+    with pytest.raises(game.CatalogError, match="'photo' must be true or false"):
+        game.load_catalog(tmp_path)
+
+
+def test_aliases_must_be_a_list(tmp_path):
+    (tmp_path / "images").mkdir()
+    (tmp_path / "images" / "a.png").write_bytes(b"x")
+    (tmp_path / "001-tech.yaml").write_text(
+        "id: tech\ntitle: Tech\nlogos:\n  - file: a.png\n    answer: A\n    aliases: K8s\n"
+    )
+    with pytest.raises(game.CatalogError, match="'aliases' must be a list"):
+        game.load_catalog(tmp_path)
+
+
+def test_category_file_must_be_a_mapping(tmp_path):
+    (tmp_path / "001-tech.yaml").write_text("- just\n- a list\n")
+    with pytest.raises(game.CatalogError, match="must contain a YAML mapping"):
+        game.load_catalog(tmp_path)

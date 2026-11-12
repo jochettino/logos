@@ -22,7 +22,7 @@ See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 app/
   main.py          FastAPI app factory and routes
   game.py          Pure game logic (catalog loading, answer matching, image picking)
-  catalog/         One JSON file per category (game mode), plus catalog/images/
+  catalog/         One YAML file per category (game mode), plus catalog/images/
                    with the image files
   templates/       Jinja2 templates
   static/          CSS
@@ -35,7 +35,7 @@ docs/              Player-facing docs
 - State (score, best score, images already seen, current image, game-over state) lives in a **signed session cookie**. There is no database and the server keeps no state, which suits Vercel's serverless model.
 - Images are served from `/image/{id}` using opaque ids derived from the filename hash, so the page source never reveals the answer. Answers stay on the server.
 - Routes: `GET /` (menu), `GET /play` (choose a category), `GET /game`, `POST /guess`, `POST /new`, `GET /image/{id}`.
-- The category files in `app/catalog/` define the game modes: their file name prefix sets the menu order, `title` and `description` fill the buttons, and `logos` lists the images.
+- The YAML category files in `app/catalog/` define the game modes: their file name prefix sets the menu order, `title` and `description` fill the buttons, and `logos` lists the images. Adding a game mode is a new file, not a code change (see [ADR 0003](docs/adr/0003-use-yaml-for-the-catalog.md)).
 
 ## Adding images
 
