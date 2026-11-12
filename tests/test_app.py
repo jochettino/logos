@@ -91,6 +91,20 @@ def test_menu_pages_render(client):
     assert "Main menu" in client.get("/about").text
 
 
+def test_pages_have_link_preview_metadata(client):
+    page = client.get("/").text
+    assert '<meta property="og:title" content="Logos — name that brand">' in page
+    assert "One wrong answer ends the game." in page
+    assert 'property="og:image" content="http://testserver/static/og-image.png"' in page
+    assert '<meta name="twitter:card" content="summary_large_image">' in page
+
+
+def test_preview_image_is_served(client):
+    response = client.get("/static/og-image.png")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/png"
+
+
 def test_about_credits_thesvg_and_the_brands(client):
     page = client.get("/about").text
     assert "non-profit" in page
