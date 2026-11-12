@@ -74,3 +74,7 @@ logos:
     answer: Stripe
   - file: redis.svg
     answer: Redis
+  - file: linux.svg
+    answer: Linux
+  - file: gitlab.svg
+    answer: GitLab
