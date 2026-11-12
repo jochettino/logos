@@ -91,6 +91,14 @@ def test_menu_pages_render(client):
     assert "Main menu" in client.get("/about").text
 
 
+def test_about_credits_thesvg_and_the_brands(client):
+    page = client.get("/about").text
+    assert "non-profit" in page
+    assert "belongs to its respective company" in page
+    assert "public internet" in page
+    assert 'href="https://github.com/glincker/thesvg"' in page
+
+
 def test_game_links_back_to_main_menu(client):
     page = client.get("/game").text
     assert "Main menu" in page and "New game" not in page

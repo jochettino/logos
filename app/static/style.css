@@ -248,6 +248,8 @@ a.button:active { transform: translateY(6px); box-shadow: none; }
 .page h2 { font-size: 1.5rem; }
 .page ol { padding-left: 1.25rem; }
 .page li, .page p { margin: .5rem 0; }
+.page a { color: var(--cyan); }
+.page a:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
 
 .msg { margin: .5rem 0; padding: .6rem 1rem; border: 3px solid; font-weight: 800; background: #000; }
 .msg.ok { color: var(--green); border-color: var(--green); animation: pop-in .3s steps(4); }
