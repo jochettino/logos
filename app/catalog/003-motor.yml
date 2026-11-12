@@ -1,0 +1,70 @@
+id: motor
+title: Motor
+description: Cars, bikes and racing
+logos:
+  - file: audi.svg
+    answer: Audi
+  - file: bmw.svg
+    answer: BMW
+  - file: mercedes-benz.svg
+    answer: Mercedes-Benz
+    aliases:
+      - Mercedes
+  - file: porsche.svg
+    answer: Porsche
+  - file: ferrari.svg
+    answer: Ferrari
+  - file: lamborghini.svg
+    answer: Lamborghini
+  - file: bugatti.svg
+    answer: Bugatti
+  - file: bentley.svg
+    answer: Bentley
+  - file: rolls-royce.svg
+    answer: Rolls-Royce
+  - file: aston-martin.svg
+    answer: Aston Martin
+  - file: mclaren.svg
+    answer: McLaren
+  - file: maserati.svg
+    answer: Maserati
+  - file: peugeot.svg
+    answer: Peugeot
+  - file: volvo.svg
+    answer: Volvo
+  - file: volkswagen.svg
+    answer: Volkswagen
+    aliases:
+      - VW
+  - file: toyota.svg
+    answer: Toyota
+  - file: honda.svg
+    answer: Honda
+  - file: nissan.svg
+    answer: Nissan
+  - file: mazda.svg
+    answer: Mazda
+  - file: subaru.svg
+    answer: Subaru
+  - file: mitsubishi.svg
+    answer: Mitsubishi
+  - file: hyundai.svg
+    answer: Hyundai
+  - file: kia.svg
+    answer: Kia
+  - file: ford.svg
+    answer: Ford
+  - file: chevrolet.svg
+    answer: Chevrolet
+    aliases:
+      - Chevy
+  - file: jeep.svg
+    answer: Jeep
+  - file: tesla.svg
+    answer: Tesla
+  - file: fiat.svg
+    answer: Fiat
+  - file: ducati.svg
+    answer: Ducati
+  - file: yamaha.svg
+    answer: Yamaha

@@ -229,7 +229,7 @@ def test_bundled_catalog_is_valid():
     from app.main import CATALOG_DIR
 
     categories = game.load_catalog(CATALOG_DIR)
-    assert [category.id for category in categories] == ["tech", "adult"]
+    assert [category.id for category in categories] == ["tech", "adult", "motor"]
     assert all(category.items for category in categories)
 
 
