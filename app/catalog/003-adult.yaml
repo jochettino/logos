@@ -63,3 +63,12 @@ logos:
       - DiCaprio
       - Leonardo
     photo: true
+  - file: ojete-calor.jpg
+    answer: Ojete Calor
+    photo: true
+  - file: arnold-schwarzenegger.jpg
+    answer: Arnold Schwarzenegger
+    aliases:
+      - Schwarzenegger
+      - Chuache
+    photo: true
