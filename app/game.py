@@ -6,6 +6,7 @@ Everything here is pure (no FastAPI), so it is easy to unit test.
 import hashlib
 import random
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -45,8 +46,14 @@ class Category:
 
 
 def normalize(text: str) -> str:
-    """Trim, collapse inner whitespace and ignore case."""
-    return " ".join(text.split()).casefold()
+    """Fold a name for comparison: ignore case, accents and every space.
+
+    "Leonardo Di Caprio", "leonardo dicaprio" and "Leonardo DiCaprio" all match, and
+    "Jesús Gil" matches "Jesus Gil". Spelling is otherwise exact.
+    """
+    decomposed = unicodedata.normalize("NFKD", text)
+    plain = "".join(char for char in decomposed if not unicodedata.combining(char))
+    return "".join(plain.casefold().split())
 
 
 def make_id(filename: str) -> str:

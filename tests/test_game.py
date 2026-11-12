@@ -60,8 +60,19 @@ def test_each_category_holds_only_its_own_logos(categories):
     assert len(tech.items) == 2 and len(adult.items) == 1
 
 
-def test_normalize_trims_collapses_and_ignores_case():
-    assert game.normalize("  JaVa   Cup ") == "java cup"
+def test_normalize_ignores_case_and_spaces():
+    assert game.normalize("  JaVa   Cup ") == "javacup"
+
+
+def test_normalize_ignores_accents():
+    assert game.normalize("Jesús Gil") == game.normalize("Jesus Gil")
+    assert game.normalize("  ÁÉÍÓÚ  ") == "aeiou"
+
+
+def test_spacing_inside_a_name_does_not_matter(items):
+    item = items[game.make_id("a.png")]
+    assert game.is_correct(item, "JavaCup")
+    assert game.is_correct(item, "j a v a  c u p")
 
 
 def test_correct_ignores_case_and_whitespace(items):
