@@ -48,3 +48,29 @@ logos:
     answer: BlueJ
   - file: winrar.png
     answer: WinRAR
+  - file: vercel.svg
+    answer: Vercel
+  - file: react.svg
+    answer: React
+    aliases:
+      - React.js
+  - file: python.svg
+    answer: Python
+  - file: rust.svg
+    answer: Rust
+  - file: go.svg
+    answer: Go
+    aliases:
+      - Golang
+  - file: vue.svg
+    answer: Vue
+    aliases:
+      - Vue.js
+  - file: figma.svg
+    answer: Figma
+  - file: notion.svg
+    answer: Notion
+  - file: stripe.svg
+    answer: Stripe
+  - file: redis.svg
+    answer: Redis
