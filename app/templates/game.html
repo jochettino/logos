@@ -52,6 +52,8 @@
             </noscript>
             <p class="share-status" role="status" aria-live="polite"></p>
           </div>
+
+          <a class="link" href="{{ url_for('landing') }}">Main menu</a>
         </section>
       {% else %}
         <p class="progress-label">{{ mode_label }} · Logo {{ score + 1 }} of {{ total }}</p>

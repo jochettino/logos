@@ -212,7 +212,7 @@ def test_correct_guess_continues_to_next_logo_without_banner(multi):
 def test_wrong_guess_ends_game_without_revealing_answer(multi):
     answer = answer_of(multi)
     page = play(multi, "nope")
-    assert "Oh, no!" in page and "Your streak ends here" in page and "Game over" in page and "Play again" in page and "/image/" not in page
+    assert "Oh, no!" in page and "Your streak ends here" in page and "Game over" in page and "Play again" in page and "Main menu" in page and "/image/" not in page
     assert answer not in page and "The answer was" not in page
 
 
@@ -242,7 +242,7 @@ def test_naming_every_logo_wins(multi):
     page = ""
     for _ in range(2):
         page = play(multi, answer_of(multi))
-    assert "You won!" in page and status(page) == (2, 2) and "/image/" not in page
+    assert "You won!" in page and "Main menu" in page and status(page) == (2, 2) and "/image/" not in page
 
 
 def test_best_score_survives_a_new_game(multi):
