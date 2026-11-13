@@ -16,20 +16,24 @@ if (shareButton) {
   const text = shareButton.dataset.shareText;
   const url = shareButton.dataset.shareUrl;
 
+  // iOS Safari drops the text when both `text` and `url` are passed to the share sheet,
+  // sharing only the link. Passing the message alone, link included, works everywhere.
+  const message = `${text} ${url}`;
+
   shareButton.addEventListener("click", async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ text, url });
+        await navigator.share({ text: message });
         return;
       } catch (error) {
         if (error.name === "AbortError") return; // player closed the share sheet
       }
     }
     try {
-      await navigator.clipboard.writeText(`${text} ${url}`);
+      await navigator.clipboard.writeText(message);
       status.textContent = "Copied! Paste it anywhere.";
     } catch {
-      status.textContent = `${text} ${url}`; // last resort: leave it selectable on screen
+      status.textContent = message; // last resort: leave it selectable on screen
     }
   });
 }

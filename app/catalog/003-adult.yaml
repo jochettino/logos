@@ -77,7 +77,6 @@ logos:
   - file: ma-barracus.jpg
     answer: M.A. Barracus
     aliases:
-      - M.A.
       - MA
       - Mr T
     photo: true
