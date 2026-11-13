@@ -56,6 +56,8 @@ logos:
       - Juan Carlos
       - Juancar
       - Campechano
+      - Emérito
+      - Rey Juan Carlos
     photo: true
   - file: leonardo-dicaprio.jpg
     answer: Leonardo DiCaprio
@@ -75,6 +77,7 @@ logos:
   - file: ma-barracus.jpg
     answer: M.A. Barracus
     aliases:
+      - M.A.
       - MA
       - Mr T
     photo: true
