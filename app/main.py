@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import FastAPI, Form, HTTPException, Request
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -93,6 +93,33 @@ def create_app(
     def choose_mode(request: Request):
         return templates.TemplateResponse(request, "modes.html", {"categories": categories})
 
+    def state_context(request: Request, session) -> dict:
+        """Template context for the current state of the game (whole page and swap fragment)."""
+        mode = session["mode"]
+        catalog = by_id[mode].items
+        score = session.get("score", 0)
+        current = catalog.get(session.get("current") or "")
+        return {
+            "mode": mode,
+            "mode_label": by_id[mode].title,
+            "over": session.get("over"),
+            "image_id": session.get("current"),
+            "photo": current.photo if current else False,
+            "score": score,
+            "best": max(session.get("bests", {}).get(mode, 0), score),
+            "total": len(catalog),
+            "result": session.pop("result", None),  # shown once, then cleared
+            "share_url": str(request.url_for("landing")),
+            "share_text": f"I scored {score} in {by_id[mode].title} at Logos 🎯 Can you beat me?",
+        }
+
+    def after_guess(request: Request, session) -> Response:
+        """Answer with the swapped fragment when the page asked for one, else redirect to GET."""
+        mode = session.get("mode")
+        if request.headers.get("x-logos-swap") and mode in by_id and by_id[mode].items:
+            return templates.TemplateResponse(request, "_state.html", state_context(request, session))
+        return RedirectResponse("/game", status_code=303)
+
     @app.get("/game")
     def play_game(request: Request):
         session = request.session
@@ -108,23 +135,7 @@ def create_app(
             session["current"], session["seen"] = game.pick_next(catalog, session["seen"])
             if session["current"] is None:
                 session["over"] = "won"
-        score = session.get("score", 0)
-        current = catalog.get(session.get("current") or "")
-        context = {
-            "empty": False,
-            "mode": mode,
-            "mode_label": by_id[mode].title,
-            "over": session.get("over"),
-            "image_id": session.get("current"),
-            "photo": current.photo if current else False,
-            "score": score,
-            "best": max(session.get("bests", {}).get(mode, 0), score),
-            "total": len(catalog),
-            "result": session.pop("result", None),  # shown once, then cleared
-            "share_url": str(request.url_for("landing")),
-            "share_text": f"I scored {score} in {by_id[mode].title} at Logos 🎯 Can you beat me?",
-        }
-        return templates.TemplateResponse(request, "game.html", context)
+        return templates.TemplateResponse(request, "game.html", state_context(request, session))
 
     @app.post("/guess")
     def guess(request: Request, image_id: Annotated[str, Form()], guess: Annotated[str, Form()] = ""):
@@ -133,16 +144,16 @@ def create_app(
         current = catalog.get(session.get("current") or "")
         # Ignore stale forms (back button, double submit), finished games and blank guesses.
         if session.get("over") or current is None or image_id != current.id:
-            return RedirectResponse("/game", status_code=303)
+            return after_guess(request, session)
         if not guess.strip():
             session["result"] = {"kind": "blank"}
-            return RedirectResponse("/game", status_code=303)
+            return after_guess(request, session)
 
         if not game.is_correct(current, guess):
             # Game over: the answer is deliberately not revealed or stored in the cookie.
             session["over"] = "lost"
             session["current"] = None
-            return RedirectResponse("/game", status_code=303)
+            return after_guess(request, session)
 
         session["score"] = session.get("score", 0) + 1
         bests = dict(session.get("bests", {}))
@@ -151,7 +162,7 @@ def create_app(
         session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
         if session["current"] is None:
             session["over"] = "won"
-        return RedirectResponse("/game", status_code=303)
+        return after_guess(request, session)
 
     @app.post("/new")
     def new_game(request: Request, mode: Annotated[str, Form()] = ""):

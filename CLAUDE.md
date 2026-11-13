@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Logos: a logo-guessing game. FastAPI + Jinja2, no JavaScript yet, deployed on Vercel. Rules live in `docs/how-to-play.md`; setup in `README.md`.
+Logos: a logo-guessing game. FastAPI + Jinja2, deployed on Vercel. Rules live in `docs/how-to-play.md`; setup in `README.md`.
 
 ## Commands
 
@@ -19,10 +19,11 @@ Logos: a logo-guessing game. FastAPI + Jinja2, no JavaScript yet, deployed on Ve
 
 - **Stateless server.** All player state is in the signed session cookie (`score`, `best`, `seen`, `current`, `result`, `over`). No globals, files or DB for per-player data: Vercel instances don't share memory.
 - **Never leak answers to the browser.** Images use opaque ids from `game.make_id`; templates must not render `answer` or `aliases`.
-- Guess flow is POST -> 303 redirect -> GET (no resubmit on refresh). The form carries `image_id`; stale submissions are ignored.
+- Guess flow is a plain form POST -> 303 redirect -> GET, so it works without JavaScript and refreshing never resubmits. When JS is available, `game.js` sends the same POST with an `X-Logos-Swap` header and the server answers with the `_state.html` fragment instead of the redirect, so only the changed parts of the page (`#pills`, `#play`) are replaced. The redirect path is the floor, not a fallback to delete. The form carries `image_id`; stale submissions are ignored on both paths.
+- One copy of the game markup: `game.html` and `_state.html` both include `_pills.html` and `_play.html`. Never rebuild that markup in JavaScript, and keep both targets renderable from the same template context.
 - Matching: case-insensitive, whitespace-normalised exact match against the answer or aliases (`game.normalize`). No fuzzy matching, by design.
 - A game is one pass through every image, each shown once. A wrong answer ends it (`over = "lost"`) without revealing or storing the answer; naming them all ends it with `"won"`. `best` survives new games. Cookies from the endless version (with `attempts`) restart fresh, keeping their score as `best`.
 - **Mobile-first.** Design and test for small touch screens first, then enhance for wider ones. Write base CSS for phones and use `min-width` media queries for larger screens. Keep the viewport meta tag, use touch-friendly tap targets (about 44px) and readable text sizes, avoid hover-only interactions, and keep pages light.
-- Keep the frontend plain HTML/CSS until JavaScript is deliberately introduced.
+- Frontend is server-rendered HTML/CSS with one small vanilla script (`app/static/game.js`) for progressive enhancement: focusing the answer field on desktop and the share button. No build step, no frameworks, no JavaScript modules. Pages must keep working without it, so add JS only where it improves something a form POST cannot do.
 - `SECRET_KEY` is required when `VERCEL` is set. Never commit real keys; `.env` is gitignored.
 - Add or change behavior with a test in the matching test file.

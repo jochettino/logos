@@ -6,71 +6,13 @@
         <img class="brand-icon" src="{{ url_for('static', path='favicon.png') }}" alt="" width="52" height="52">
         <h1>Logos</h1>
       </div>
-      {% if not empty %}
-        <div class="pills">
-          <span class="pill">Score <b>{{ "%03d"|format(score) }}</b></span>
-          <span class="pill gold">🏆 Best <b>{{ "%03d"|format(best) }}</b></span>
-        </div>
-      {% endif %}
+      {% if not empty %}{% include "_pills.html" %}{% endif %}
     </header>
 
     {% if empty %}
       <p class="card note">No images configured yet. Add files to <code>app/catalog/images/</code> and list them in the category file.</p>
     {% else %}
-      <div aria-live="polite">
-        {% if result %}
-          <p class="msg bad">Type a guess first.</p>
-        {% endif %}
-      </div>
-
-      {% if over %}
-        <section class="over">
-          {% if over == "lost" %}
-            <p class="drama">Oh, no!</p>
-            <p class="drama-sub">Your streak ends here… 💔</p>
-            <h2 class="bad">Game over</h2>
-            <p class="lead">That was not the right name.</p>
-          {% else %}
-            <p class="trophy" aria-hidden="true">🏆</p>
-            <h2>You won!</h2>
-            <p class="lead">You named all {{ total }} logos.</p>
-          {% endif %}
-          <p class="final">Final score <b>{{ score }}</b>{% if score == best and score > 0 %} <span class="badge">Best so far</span>{% endif %}</p>
-          <form method="post" action="{{ url_for('new_game') }}">
-            <input type="hidden" name="mode" value="{{ mode }}">
-            <button type="submit" class="primary">Play again</button>
-          </form>
-
-          <div class="share">
-            <button type="button" class="secondary share-button"
-                    data-share-text="{{ share_text }}" data-share-url="{{ share_url }}">
-              <span aria-hidden="true">🔗</span> Share my score
-            </button>
-            <noscript>
-              <style>.share-button { display: none; }</style>
-              <a class="button" href="https://wa.me/?text={{ (share_text ~ ' ' ~ share_url)|urlencode }}">Share on WhatsApp</a>
-            </noscript>
-            <p class="share-status" role="status" aria-live="polite"></p>
-          </div>
-
-          <a class="link" href="{{ url_for('landing') }}">Main menu</a>
-        </section>
-      {% else %}
-        <p class="progress-label">{{ mode_label }} · Logo {{ score + 1 }} of {{ total }}</p>
-        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="{{ total }}" aria-valuenow="{{ score }}">
-          {% for i in range(total) %}<span class="seg{% if i < score %} done{% elif i == score %} now{% endif %}"></span>{% endfor %}
-        </div>
-
-        <div class="card logo{% if photo %} photo{% endif %}"><img src="{{ url_for('image', image_id=image_id) }}" alt="Guess the brand"></div>
-
-        <form method="post" action="{{ url_for('guess') }}" class="guess">
-          <input type="hidden" name="image_id" value="{{ image_id }}">
-          <input type="text" name="guess" placeholder="Brand or product name" aria-label="Your guess" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
-          <button type="submit" class="primary">Guess</button>
-        </form>
-
-        <a class="link" href="{{ url_for('landing') }}">Main menu</a>
-      {% endif %}
+      {% include "_play.html" %}
     {% endif %}
 {% endblock %}
 {% block scripts %}

@@ -12,7 +12,7 @@ See [docs/how-to-play.md](docs/how-to-play.md) for the rules.
 
 - **Python 3.12** (Vercel's default; pinned in `.python-version`, the code works on newer versions too)
 - **FastAPI** for the server, **Jinja2** for server-rendered HTML
-- Plain HTML and a small CSS file. Every guess is a form POST followed by a redirect (full page reload), so JavaScript is only used to focus the answer field on desktop.
+- Plain HTML and a small CSS file, plus one small vanilla script (`app/static/game.js`) for progressive enhancement: focusing the answer field on desktop, the share button, and swapping a guess in place. Every guess is still a form POST followed by a redirect when JavaScript is unavailable.
 - **pytest** + **httpx2** for tests, **uv** for environments and dependencies
 - Deployed on **Vercel**
 
@@ -25,7 +25,7 @@ app/
   catalog/         One YAML file per category (game mode), plus catalog/images/
                    with the image files
   templates/       Jinja2 templates
-  static/          CSS
+  static/          CSS, JS and icons
 tests/             pytest suite
 docs/              Player-facing docs
 ```
@@ -66,5 +66,5 @@ uv run pytest
 
 ## Roadmap
 
-- Add JavaScript to submit guesses without full reloads.
+- Preload the next logo so it is already cached when the player guesses.
 - More images (target: up to ~100).

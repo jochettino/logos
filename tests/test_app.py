@@ -83,6 +83,17 @@ def play(client, text):
     return client.post("/guess", data={"image_id": image_id(page), "guess": text}).text
 
 
+def play_swapping(client, text):
+    """Guess the way the page does with JS: ask for the swapped fragment, not a redirect."""
+    page = client.get("/game").text
+    response = client.post(
+        "/guess",
+        data={"image_id": image_id(page), "guess": text},
+        headers={"X-Logos-Swap": "1"},
+    )
+    return response, response.text
+
+
 def test_game_shows_image_and_zero_score(client):
     page = client.get("/game").text
     assert "/image/" in page and status(page) == (0, 0)
@@ -230,6 +241,59 @@ def test_guess_after_game_over_is_ignored(multi):
     play(multi, "nope")
     page = multi.post("/guess", data={"image_id": item, "guess": "Alpha"}).text
     assert "Game over" in page and status(page)[0] == 0
+
+
+def test_game_page_exposes_the_swap_targets(client):
+    page = client.get("/game").text
+    assert 'id="pills"' in page and 'id="play"' in page
+
+
+def test_guess_can_answer_with_a_fragment_instead_of_a_redirect(multi):
+    response, fragment = play_swapping(multi, "nope")
+    assert response.status_code == 200 and "location" not in response.headers
+    assert 'id="pills"' in fragment and '<div id="play"' in fragment
+    # A fragment, not a page: no head, no brand header, nothing to re-parse or re-render.
+    assert "<html" not in fragment and "game-header" not in fragment
+
+
+def test_fragment_carries_the_new_score_and_the_next_image(multi):
+    _, fragment = play_swapping(multi, answer_of(multi).lower())
+    assert "Score <b>001</b>" in fragment and "Best <b>001</b>" in fragment
+    assert "/image/" in fragment and 'data-body-class=""' in fragment
+
+
+def test_fragment_for_a_wrong_guess_shows_the_game_over_screen(multi):
+    answer = answer_of(multi)
+    _, fragment = play_swapping(multi, "nope")
+    assert "Game over" in fragment and 'data-body-class="lost"' in fragment
+    assert "/image/" not in fragment and answer not in fragment
+
+
+def test_blank_guess_fragment_keeps_the_same_image(multi):
+    page = multi.get("/game").text
+    response = multi.post(
+        "/guess",
+        data={"image_id": image_id(page), "guess": "  "},
+        headers={"X-Logos-Swap": "1"},
+    )
+    assert "Type a guess first" in response.text
+    assert image_id(response.text) == image_id(page)
+
+
+def test_a_repeated_swap_guess_does_not_score_twice(multi):
+    page = multi.get("/game").text
+    data = {"image_id": image_id(page), "guess": multi.catalog[image_id(page)].answer}
+    multi.post("/guess", data=data, headers={"X-Logos-Swap": "1"})
+    repeated = multi.post("/guess", data=data, headers={"X-Logos-Swap": "1"})
+    assert "Score <b>001</b>" in repeated.text
+
+
+def test_guess_without_the_swap_header_still_redirects(client):
+    page = client.get("/game").text
+    response = client.post(
+        "/guess", data={"image_id": image_id(page), "guess": "Java"}, follow_redirects=False
+    )
+    assert response.status_code == 303 and response.headers["location"] == "/game"
 
 
 def test_answer_is_not_stored_in_cookie_after_loss(multi):
