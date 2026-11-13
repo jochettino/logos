@@ -40,6 +40,11 @@ def items(categories):
     return {item_id: item for category in categories for item_id, item in category.items.items()}
 
 
+def image_id(filename: str, data: bytes = b"x") -> str:
+    """Id the catalog gives an image written by the fixtures above (they all hold b"x")."""
+    return game.make_id(filename, data)
+
+
 def test_categories_are_ordered_by_file_prefix(catalog_dir):
     (catalog_dir / "000-first.yaml").write_text(yaml.safe_dump({"id": "first", "title": "First", "logos": []}))
     assert [c.id for c in game.load_catalog(catalog_dir)] == ["first", "tech", "adult"]
@@ -88,24 +93,31 @@ def test_punctuation_in_an_answer_does_not_matter(tmp_path):
 
 
 def test_spacing_inside_a_name_does_not_matter(items):
-    item = items[game.make_id("a.png")]
+    item = items[image_id("a.png")]
     assert game.is_correct(item, "JavaCup")
     assert game.is_correct(item, "j a v a  c u p")
 
 
 def test_correct_ignores_case_and_whitespace(items):
-    assert game.is_correct(items[game.make_id("a.png")], " java ")
-    assert game.is_correct(items[game.make_id("a.png")], "JAVA CUP")
+    assert game.is_correct(items[image_id("a.png")], " java ")
+    assert game.is_correct(items[image_id("a.png")], "JAVA CUP")
 
 
 def test_wrong_and_mistyped_guesses_fail(items):
-    assert not game.is_correct(items[game.make_id("a.png")], "Jvaa")
-    assert not game.is_correct(items[game.make_id("a.png")], "")
+    assert not game.is_correct(items[image_id("a.png")], "Jvaa")
+    assert not game.is_correct(items[image_id("a.png")], "")
 
 
 def test_ids_do_not_leak_answers(items):
     for item_id in items:
         assert "java" not in item_id.lower()
+
+
+def test_id_changes_when_the_image_bytes_change(catalog_dir):
+    # This is what makes long-lived caching of /image/{id} safe: new bytes, new URL.
+    before = next(iter(game.load_catalog(catalog_dir)[0].items))
+    (catalog_dir / "images" / "a.png").write_bytes(b"new logo")
+    assert next(iter(game.load_catalog(catalog_dir)[0].items)) != before
 
 
 def test_pick_next_shows_every_image_once_then_ends(categories):
@@ -209,8 +221,8 @@ def test_photo_defaults_to_false_and_is_read_from_the_file(tmp_path):
         ],
     }))
     items = game.load_catalog(tmp_path)[0].items
-    assert items[game.make_id("a.png")].photo is False
-    assert items[game.make_id("b.png")].photo is True
+    assert items[image_id("a.png")].photo is False
+    assert items[image_id("b.png")].photo is True
 
 
 def test_yml_extension_is_supported(tmp_path):

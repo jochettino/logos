@@ -10,11 +10,14 @@ from app import game
 from app.main import create_app
 
 
+IMAGE_BYTES = b"\x89PNG"
+
+
 def write_category(directory, name, title, logos, description=""):
     """Write <name>.yaml plus the images it lists into a catalog directory."""
     (directory / "images").mkdir(parents=True, exist_ok=True)
     for logo in logos:
-        (directory / "images" / logo["file"]).write_bytes(b"\x89PNG")
+        (directory / "images" / logo["file"]).write_bytes(IMAGE_BYTES)
     category_id = name.split("-", 1)[1]
     (directory / f"{name}.yaml").write_text(yaml.safe_dump({
         "id": category_id,
@@ -60,6 +63,11 @@ def answer_of(client):
 
 def image_id(html: str) -> str:
     return html.split("/image/")[1].split('"')[0]
+
+
+def catalog_id(filename: str) -> str:
+    """Id the server assigns to an image written by write_category."""
+    return game.make_id(filename, IMAGE_BYTES)
 
 
 def status(html: str) -> tuple[int, int]:
@@ -283,6 +291,17 @@ def test_image_is_served_and_unknown_id_404s(client):
     assert client.get("/image/nope").status_code == 404
 
 
+def test_image_url_is_cached_indefinitely(client):
+    # Safe because the id hashes the image bytes: new content means a new URL.
+    item_id = image_id(client.get("/game").text)
+    assert client.get(f"/image/{item_id}").headers["cache-control"] == "public, max-age=31536000, immutable"
+
+
+def test_static_assets_are_cached_briefly(client):
+    # Asset file names have no content hash, so they must expire sooner than images.
+    assert client.get("/static/style.css").headers["cache-control"] == "public, max-age=300"
+
+
 def test_category_without_logos_shows_friendly_message(tmp_path):
     write_category(tmp_path, "001-tech", "Tech", [])
     client = TestClient(create_app(tmp_path, secret_key="test"))
@@ -350,7 +369,7 @@ def test_each_category_plays_only_its_logos(mixed):
 
 
 def test_modes_only_serve_their_own_logos(mixed):
-    adult, tech = game.make_id("Beta.png"), game.make_id("Alpha.png")
+    adult, tech = catalog_id("Beta.png"), catalog_id("Alpha.png")
     mixed.post("/new", data={"mode": "tech"})
     assert mixed.get(f"/image/{adult}").status_code == 404
     assert mixed.get(f"/image/{tech}").status_code == 200
@@ -372,7 +391,7 @@ def test_best_score_is_kept_per_mode(mixed):
     mixed.post("/new", data={"mode": "tech"})
     for _ in range(2):
         page = mixed.get("/game").text
-        answer = next(n for n in ("Alpha", "Beta", "Gamma") if game.make_id(f"{n}.png") == image_id(page))
+        answer = next(n for n in ("Alpha", "Beta", "Gamma") if catalog_id(f"{n}.png") == image_id(page))
         mixed.post("/guess", data={"image_id": image_id(page), "guess": answer})
     assert status(mixed.get("/game").text) == (2, 2)
     mixed.post("/new", data={"mode": "adult"})

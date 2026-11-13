@@ -57,8 +57,13 @@ def normalize(text: str) -> str:
     return "".join(char for char in plain.casefold() if char.isalnum())
 
 
-def make_id(filename: str) -> str:
-    return hashlib.sha256(filename.encode()).hexdigest()[:10]
+def make_id(filename: str, data: bytes) -> str:
+    """Opaque id for an image: a hash of its name and its bytes.
+
+    The bytes are part of the hash so that editing an image changes its URL, which lets
+    the server promise browsers that a given /image/{id} never changes its content.
+    """
+    return hashlib.sha256(filename.encode() + b"\0" + data).hexdigest()[:10]
 
 
 def _read_category_file(path: Path) -> dict:
@@ -102,7 +107,7 @@ def _load_items(path: Path, logos, images_dir: Path, seen_ids: set[str]) -> dict
         if not image.is_file():
             raise CatalogError(f"Image not found: {image}")
         item = Item(
-            id=make_id(filename),
+            id=make_id(filename, image.read_bytes()),
             path=image,
             answer=answer,
             aliases=aliases,

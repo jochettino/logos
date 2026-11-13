@@ -19,6 +19,22 @@ mimetypes.add_type("application/manifest+json", ".webmanifest")
 BASE_DIR = Path(__file__).parent
 CATALOG_DIR = BASE_DIR / "catalog"
 
+# /image/{id} ids hash the image bytes, so a given URL never changes its content.
+IMAGE_CACHE = "public, max-age=31536000, immutable"
+
+
+class AssetFiles(StaticFiles):
+    """Static files with a short, revalidating cache lifetime.
+
+    Asset names carry no content hash, so they cannot be marked immutable: a deploy that
+    changes style.css must reach players in minutes, not a year.
+    """
+
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = super().file_response(full_path, stat_result, scope, status_code)
+        response.headers["Cache-Control"] = "public, max-age=300"
+        return response
+
 
 def _secret_key() -> str:
     key = os.environ.get("SECRET_KEY")
@@ -37,7 +53,7 @@ def create_app(
 ) -> FastAPI:
     app = FastAPI(title="Logos")
     app.add_middleware(SessionMiddleware, secret_key=secret_key or _secret_key())
-    app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
+    app.mount("/static", AssetFiles(directory=BASE_DIR / "static"), name="static")
     templates = Jinja2Templates(directory=BASE_DIR / "templates")
     categories = game.load_catalog(catalog_dir)
     by_id = {category.id: category for category in categories}
@@ -150,7 +166,7 @@ def create_app(
         if item is None:
             raise HTTPException(status_code=404)
         media_type = mimetypes.guess_type(item.path.name)[0] or "application/octet-stream"
-        return FileResponse(item.path, media_type=media_type)
+        return FileResponse(item.path, media_type=media_type, headers={"Cache-Control": IMAGE_CACHE})
 
     return app
 
