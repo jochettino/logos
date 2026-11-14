@@ -124,6 +124,12 @@ def test_page_links_a_standalone_manifest(client):
     assert '<meta name="mobile-web-app-capable" content="yes">' in page
 
 
+def test_page_loads_vercel_analytics(client):
+    page = client.get("/").text
+    assert '<script defer src="/_vercel/insights/script.js"></script>' in page
+    assert "window.va = window.va ||" in page
+
+
 def test_manifest_is_served_as_manifest_json(client):
     response = client.get("/static/manifest.webmanifest")
     assert response.status_code == 200
