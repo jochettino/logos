@@ -47,6 +47,10 @@ function swapIn(html) {
   const next = new DOMParser().parseFromString(html, "text/html");
   const play = next.getElementById("play");
   if (!play) return false; // unexpected page: let the caller fall back to a normal load
+  // DOMParser parses with scripting off, so <noscript> comes back as real markup and its
+  // <style> would apply once inserted, hiding the share button. A swap only happens with
+  // JS, so the no-script fallbacks are never needed here.
+  for (const fallback of next.querySelectorAll("noscript")) fallback.remove();
   for (const id of ["pills", "play"]) {
     const current = document.getElementById(id);
     const replacement = next.getElementById(id);
