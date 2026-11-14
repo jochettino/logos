@@ -2,7 +2,7 @@
 # Curated subset: well-known brands only, roughly most famous first, and only
 # marks that do not spell the brand name out. Monograms (BMW, MG, DS, RR) are
 # fine; wordmark logos (Ford, Ferrari, Nissan, Volvo, ...) are left out because
-# they give the answer away. 30 of the 38 are drawn at random per game.
+# they give the answer away. 30 of the 39 are drawn at random per game.
 id: motor
 title: Motor
 description: The best-known car, bike and truck brands, 30 at random per game
@@ -38,6 +38,11 @@ logos:
     answer: Skoda
   - file: seat.svg
     answer: SEAT
+  # Cupra is the one logo not taken from theSVG: its file there spells the name
+  # out. This is the public-domain symbol from
+  # https://commons.wikimedia.org/wiki/File:Cupra_symbol.svg
+  - file: cupra.svg
+    answer: Cupra
   - file: mazda.svg
     answer: Mazda
   - file: subaru.svg
