@@ -63,6 +63,18 @@ def create_app(
         category = by_id.get(session.get("mode"))
         return category.items if category else {}
 
+    def game_items(session) -> dict[str, game.Item]:
+        """Items this game may show: its sampled pool, or the whole category.
+
+        The pool lives in the cookie because a sampled category must keep showing the
+        same few images across requests, and serverless instances share no memory.
+        """
+        catalog = session_catalog(session)
+        pool = session.get("pool")
+        if pool is None:
+            return catalog
+        return {item_id: catalog[item_id] for item_id in pool if item_id in catalog}
+
     def start_game(session, mode: str) -> None:
         """Begin a fresh game in the given mode. Best scores survive; everything else resets."""
         bests = dict(session.get("bests", {}))
@@ -74,7 +86,10 @@ def create_app(
             session.pop(key, None)
         session["mode"] = mode
         session["score"] = 0
-        session["current"], session["seen"] = game.pick_next(by_id[mode].items, [])
+        category = by_id[mode]
+        pool = game.draw_pool(category.items, category.sample)
+        session["pool"] = list(pool)
+        session["current"], session["seen"] = game.pick_next(pool, [])
 
     # HEAD is allowed so uptime checks (e.g. the README status badge) get a 200.
     @app.api_route("/", methods=["GET", "HEAD"])
@@ -96,18 +111,20 @@ def create_app(
     def state_context(request: Request, session) -> dict:
         """Template context for the current state of the game (whole page and swap fragment)."""
         mode = session["mode"]
-        catalog = by_id[mode].items
+        items = game_items(session)
         score = session.get("score", 0)
-        current = catalog.get(session.get("current") or "")
+        current = items.get(session.get("current") or "")
         return {
             "mode": mode,
             "mode_label": by_id[mode].title,
             "over": session.get("over"),
             "image_id": session.get("current"),
             "photo": current.photo if current else False,
+            "framed": by_id[mode].framed,
+            "prompt": by_id[mode].prompt,
             "score": score,
             "best": max(session.get("bests", {}).get(mode, 0), score),
-            "total": len(catalog),
+            "total": len(items),
             "result": session.pop("result", None),  # shown once, then cleared
             "share_url": str(request.url_for("landing")),
             "share_text": f"I scored {score} in {by_id[mode].title} at Logos 🎯 Can you beat me?",
@@ -126,22 +143,23 @@ def create_app(
         mode = session.get("mode")
         if mode not in by_id:
             return RedirectResponse("/play", status_code=303)
-        catalog = by_id[mode].items
-        if not catalog:
+        if not by_id[mode].items:
             return templates.TemplateResponse(request, "game.html", {"empty": True})
         if "seen" not in session:
             start_game(session, mode)
-        elif not session.get("over") and session.get("current") not in catalog:
-            session["current"], session["seen"] = game.pick_next(catalog, session["seen"])
-            if session["current"] is None:
-                session["over"] = "won"
+        else:
+            items = game_items(session)
+            if not session.get("over") and session.get("current") not in items:
+                session["current"], session["seen"] = game.pick_next(items, session["seen"])
+                if session["current"] is None:
+                    session["over"] = "won"
         return templates.TemplateResponse(request, "game.html", state_context(request, session))
 
     @app.post("/guess")
     def guess(request: Request, image_id: Annotated[str, Form()], guess: Annotated[str, Form()] = ""):
         session = request.session
-        catalog = session_catalog(session)
-        current = catalog.get(session.get("current") or "")
+        items = game_items(session)
+        current = items.get(session.get("current") or "")
         # Ignore stale forms (back button, double submit), finished games and blank guesses.
         if session.get("over") or current is None or image_id != current.id:
             return after_guess(request, session)
@@ -159,7 +177,7 @@ def create_app(
         bests = dict(session.get("bests", {}))
         bests[session["mode"]] = max(bests.get(session["mode"], 0), session["score"])
         session["bests"] = bests
-        session["current"], session["seen"] = game.pick_next(catalog, session.get("seen", []))
+        session["current"], session["seen"] = game.pick_next(items, session.get("seen", []))
         if session["current"] is None:
             session["over"] = "won"
         return after_guess(request, session)

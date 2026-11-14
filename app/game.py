@@ -43,6 +43,9 @@ class Category:
     title: str
     description: str
     items: dict[str, Item]  # keyed by opaque id
+    sample: int | None = None  # images per game; None means the whole category
+    framed: bool = False  # draw a thin border around the image (flags need it on white)
+    prompt: str = "Brand or product name"  # placeholder in the guess field
 
 
 def normalize(text: str) -> str:
@@ -143,6 +146,21 @@ def load_catalog(catalog_dir: Path) -> list[Category]:
         if order in seen_orders:
             raise CatalogError(f"{path.name}: order {order:03d} is already used by {seen_orders[order]}")
 
+        items = _load_items(path, data.get("logos"), images_dir, seen_ids)
+        sample = data.get("sample")
+        if sample is not None:
+            # bool is an int in Python, and YAML turns 'yes' into one; only a real number counts.
+            if isinstance(sample, bool) or not isinstance(sample, int) or sample < 1:
+                raise CatalogError(f"{path.name}: 'sample' must be a whole number of at least 1")
+            if sample > len(items):
+                raise CatalogError(f"{path.name}: 'sample' is {sample} but only {len(items)} logos are listed")
+        framed = data.get("framed", False)
+        if not isinstance(framed, bool):
+            raise CatalogError(f"{path.name}: 'framed' must be true or false")
+        prompt = data.get("prompt")
+        if prompt is not None:
+            prompt = _text(path.name, "prompt", prompt)
+
         seen_orders[order] = path.name
         categories.append(
             Category(
@@ -150,11 +168,26 @@ def load_catalog(catalog_dir: Path) -> list[Category]:
                 order=order,
                 title=title,
                 description=description,
-                items=_load_items(path, data.get("logos"), images_dir, seen_ids),
+                items=items,
+                sample=sample,
+                framed=framed,
+                prompt=prompt or "Brand or product name",
             )
         )
 
     return sorted(categories, key=lambda category: category.order)
+
+
+def draw_pool(
+    items: dict[str, Item],
+    sample: int | None,
+    rng: random.Random | None = None,
+) -> dict[str, Item]:
+    """The images one game may show: the whole category, or a random subset of it."""
+    if sample is None:
+        return dict(items)
+    rng = rng or random
+    return {item_id: items[item_id] for item_id in rng.sample(list(items), sample)}
 
 
 def is_correct(item: Item, guess: str) -> bool:

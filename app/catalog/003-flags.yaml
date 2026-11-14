@@ -1,0 +1,258 @@
+# Best-known country flags, from https://github.com/lipis/flag-icons (MIT).
+# Curated subset: well-known countries only, so the game stays playable.
+id: flags
+title: Country Flags
+description: The best-known flags, 30 at random per game
+prompt: Country name
+framed: true
+sample: 30
+logos:
+  - file: flag-dz.svg
+    answer: Algeria
+    aliases:
+      - Argelia
+  - file: flag-ar.svg
+    answer: Argentina
+  - file: flag-au.svg
+    answer: Australia
+  - file: flag-at.svg
+    answer: Austria
+  - file: flag-bd.svg
+    answer: Bangladesh
+    aliases:
+      - Bangladés
+  - file: flag-be.svg
+    answer: Belgium
+    aliases:
+      - Bélgica
+  - file: flag-br.svg
+    answer: Brazil
+    aliases:
+      - Brasil
+  - file: flag-kh.svg
+    answer: Cambodia
+    aliases:
+      - Camboya
+  - file: flag-ca.svg
+    answer: Canada
+  - file: flag-cl.svg
+    answer: Chile
+  - file: flag-cn.svg
+    answer: China
+    aliases:
+      - PRC
+      - People's Republic of China
+  - file: flag-co.svg
+    answer: Colombia
+  - file: flag-hr.svg
+    answer: Croatia
+    aliases:
+      - Croacia
+  - file: flag-cu.svg
+    answer: Cuba
+  - file: flag-cz.svg
+    answer: Czech Republic
+    aliases:
+      - Czechia
+      - República Checa
+      - Chequia
+  - file: flag-dk.svg
+    answer: Denmark
+    aliases:
+      - Dinamarca
+  - file: flag-eg.svg
+    answer: Egypt
+    aliases:
+      - Egipto
+  - file: flag-et.svg
+    answer: Ethiopia
+    aliases:
+      - Etiopía
+  - file: flag-fi.svg
+    answer: Finland
+    aliases:
+      - Finlandia
+  - file: flag-fr.svg
+    answer: France
+    aliases:
+      - Francia
+  - file: flag-de.svg
+    answer: Germany
+    aliases:
+      - Alemania
+  - file: flag-gh.svg
+    answer: Ghana
+  - file: flag-gr.svg
+    answer: Greece
+    aliases:
+      - Grecia
+  - file: flag-hu.svg
+    answer: Hungary
+    aliases:
+      - Hungría
+  - file: flag-is.svg
+    answer: Iceland
+    aliases:
+      - Islandia
+  - file: flag-in.svg
+    answer: India
+  - file: flag-id.svg
+    answer: Indonesia
+  - file: flag-ir.svg
+    answer: Iran
+  - file: flag-iq.svg
+    answer: Iraq
+    aliases:
+      - Irak
+  - file: flag-ie.svg
+    answer: Ireland
+    aliases:
+      - Irlanda
+      - Éire
+  - file: flag-il.svg
+    answer: Israel
+  - file: flag-it.svg
+    answer: Italy
+    aliases:
+      - Italia
+  - file: flag-jm.svg
+    answer: Jamaica
+  - file: flag-jp.svg
+    answer: Japan
+    aliases:
+      - Japón
+  - file: flag-ke.svg
+    answer: Kenya
+    aliases:
+      - Kenia
+  - file: flag-my.svg
+    answer: Malaysia
+    aliases:
+      - Malasia
+  - file: flag-mx.svg
+    answer: Mexico
+  - file: flag-ma.svg
+    answer: Morocco
+    aliases:
+      - Marruecos
+  - file: flag-np.svg
+    answer: Nepal
+  - file: flag-nl.svg
+    answer: Netherlands
+    aliases:
+      - Holland
+      - Países Bajos
+  - file: flag-nz.svg
+    answer: New Zealand
+    aliases:
+      - Nueva Zelanda
+  - file: flag-ng.svg
+    answer: Nigeria
+  - file: flag-kp.svg
+    answer: North Korea
+    aliases:
+      - DPRK
+      - Democratic People's Republic of Korea
+      - Corea del Norte
+  - file: flag-no.svg
+    answer: Norway
+    aliases:
+      - Noruega
+  - file: flag-pk.svg
+    answer: Pakistan
+  - file: flag-pe.svg
+    answer: Peru
+  - file: flag-ph.svg
+    answer: Philippines
+    aliases:
+      - Filipinas
+  - file: flag-pl.svg
+    answer: Poland
+    aliases:
+      - Polonia
+  - file: flag-pt.svg
+    answer: Portugal
+  - file: flag-ru.svg
+    answer: Russia
+    aliases:
+      - Russian Federation
+      - Rusia
+  - file: flag-sa.svg
+    answer: Saudi Arabia
+    aliases:
+      - Arabia Saudita
+      - KSA
+  - file: flag-sg.svg
+    answer: Singapore
+    aliases:
+      - Singapur
+  - file: flag-za.svg
+    answer: South Africa
+    aliases:
+      - Sudáfrica
+  - file: flag-kr.svg
+    answer: South Korea
+    aliases:
+      - Korea
+      - Republic of Korea
+      - Corea del Sur
+  - file: flag-es.svg
+    answer: Spain
+    aliases:
+      - España
+  - file: flag-se.svg
+    answer: Sweden
+    aliases:
+      - Suecia
+  - file: flag-ch.svg
+    answer: Switzerland
+    aliases:
+      - Suiza
+  - file: flag-tw.svg
+    answer: Taiwan
+    aliases:
+      - Republic of China
+      - Chinese Taipei
+  - file: flag-th.svg
+    answer: Thailand
+    aliases:
+      - Tailandia
+  - file: flag-tn.svg
+    answer: Tunisia
+    aliases:
+      - Túnez
+  - file: flag-tr.svg
+    answer: Türkiye
+    aliases:
+      - Turkey
+      - Turquía
+  - file: flag-ua.svg
+    answer: Ukraine
+    aliases:
+      - Ucrania
+  - file: flag-ae.svg
+    answer: United Arab Emirates
+    aliases:
+      - UAE
+      - Emirates
+      - Emiratos Árabes Unidos
+  - file: flag-gb.svg
+    answer: United Kingdom
+    aliases:
+      - UK
+      - Great Britain
+      - Britain
+      - Reino Unido
+  - file: flag-us.svg
+    answer: United States of America
+    aliases:
+      - United States
+      - USA
+      - US
+      - America
+      - Estados Unidos
+      - EEUU
+  - file: flag-ve.svg
+    answer: Venezuela
+  - file: flag-vn.svg
+    answer: Vietnam

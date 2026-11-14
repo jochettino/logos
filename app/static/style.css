@@ -164,6 +164,9 @@ h2.bad { color: var(--red); text-shadow: 3px 3px 0 #5a0000; animation: blink 1s 
 .card.photo { padding: 0; }
 .card.photo img { height: 38vh; max-height: none; object-fit: cover; object-position: center 20%; }
 
+/* Framed art (flags) sits on white, so a thin border marks where the image ends. */
+.card.framed img { border: 2px solid #000; }
+
 img {
   display: block;
   width: 100%;

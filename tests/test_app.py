@@ -13,7 +13,7 @@ from app.main import create_app
 IMAGE_BYTES = b"\x89PNG"
 
 
-def write_category(directory, name, title, logos, description=""):
+def write_category(directory, name, title, logos, description="", **fields):
     """Write <name>.yaml plus the images it lists into a catalog directory."""
     (directory / "images").mkdir(parents=True, exist_ok=True)
     for logo in logos:
@@ -24,6 +24,7 @@ def write_category(directory, name, title, logos, description=""):
         "title": title,
         "description": description,
         "logos": logos,
+        **fields,
     }))
     return directory
 
@@ -383,8 +384,26 @@ def test_bundled_catalog_is_valid():
     from app.main import CATALOG_DIR
 
     categories = game.load_catalog(CATALOG_DIR)
-    assert [category.id for category in categories] == ["tech", "motor", "adult"]
+    assert [category.id for category in categories] == ["tech", "motor", "flags", "adult"]
     assert all(category.items for category in categories)
+
+
+def test_bundled_flags_category_plays_a_sample():
+    from app.main import CATALOG_DIR
+
+    flags = {category.id: category for category in game.load_catalog(CATALOG_DIR)}["flags"]
+    assert flags.sample == 30 and len(flags.items) > flags.sample
+    assert flags.framed and flags.prompt == "Country name"
+
+
+def test_bundled_flags_are_the_best_known_countries():
+    from app.main import CATALOG_DIR
+
+    flags = {category.id: category for category in game.load_catalog(CATALOG_DIR)}["flags"]
+    answers = {item.answer for item in flags.items.values()}
+    assert {"Germany", "United States of America", "Japan", "Brazil", "Kenya"} <= answers
+    # Obscure flags made the game unplayable: they stay out of the curated pool.
+    assert not {"Nauru", "Tuvalu", "Saint Kitts and Nevis", "Comoros"} & answers
 
 
 def test_bundled_catalog_has_no_redundant_aliases():
@@ -487,3 +506,55 @@ def test_photo_entries_fill_the_card_and_logos_do_not(tmp_path):
         item = catalog[image_id(page)]
         assert ("card logo photo" in page) == item.photo
         client.post("/guess", data={"image_id": item.id, "guess": item.answer})
+
+
+@pytest.fixture
+def sampled(tmp_path):
+    """A category that shows two of its five images per game."""
+    logos = [{"file": f"Name{number}.png", "answer": f"Name{number}"} for number in range(5)]
+    write_category(tmp_path, "001-flags", "Flags", logos, sample=2)
+    client = TestClient(create_app(tmp_path, secret_key="test"))
+    client.post("/new", data={"mode": "flags"})
+    client.catalog = {
+        item_id: item for category in game.load_catalog(tmp_path)
+        for item_id, item in category.items.items()
+    }
+    return client
+
+
+def test_sampled_game_only_plays_the_sample(sampled):
+    page = sampled.get("/game").text
+    assert "Logo 1 of 2" in page
+    assert page.count('<span class="seg') == 2
+
+
+def test_sampled_game_is_won_after_the_sample(sampled):
+    for _ in range(2):
+        play(sampled, answer_of(sampled))
+    page = sampled.get("/game").text
+    assert "You won!" in page and status(page) == (2, 2)
+
+
+def test_sampled_game_starts_with_a_new_sample_after_a_loss(sampled):
+    play(sampled, "nope")
+    page = sampled.post("/new", data={"mode": "flags"}).text
+    assert "Logo 1 of 2" in page and "/image/" in page and "Game over" not in page
+
+
+def test_category_can_set_a_frame_and_a_prompt(tmp_path):
+    write_category(
+        tmp_path, "001-flags", "Flags",
+        [{"file": "spain.svg", "answer": "Spain"}],
+        framed=True, prompt="Country name",
+    )
+    client = TestClient(create_app(tmp_path, secret_key="test"))
+    client.post("/new", data={"mode": "flags"})
+    page = client.get("/game").text
+    assert 'class="card logo framed"' in page
+    assert 'placeholder="Country name"' in page
+
+
+def test_default_category_has_no_frame_and_the_brand_prompt(client):
+    page = client.get("/game").text
+    assert 'class="card logo"' in page
+    assert 'placeholder="Brand or product name"' in page

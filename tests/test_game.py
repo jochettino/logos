@@ -270,3 +270,75 @@ def test_category_file_must_be_a_mapping(tmp_path):
     (tmp_path / "001-tech.yaml").write_text("- just\n- a list\n")
     with pytest.raises(game.CatalogError, match="must contain a YAML mapping"):
         game.load_catalog(tmp_path)
+
+
+def write_one_logo_category(directory, **fields):
+    """Smallest valid category file, plus whatever extra fields the test needs."""
+    (directory / "images").mkdir(exist_ok=True)
+    (directory / "images" / "only.svg").write_bytes(b"x")
+    (directory / "001-tech.yaml").write_text(yaml.safe_dump({
+        "id": "tech",
+        "title": "Tech",
+        "logos": [{"file": "only.svg", "answer": "Only"}],
+        **fields,
+    }))
+    return directory
+
+
+def test_sample_framed_and_prompt_default_to_off(categories):
+    tech = categories[0]
+    assert (tech.sample, tech.framed, tech.prompt) == (None, False, "Brand or product name")
+
+
+def test_sample_framed_and_prompt_are_read_from_file(tmp_path):
+    write_one_logo_category(tmp_path, sample=1, framed=True, prompt="Country name")
+    (tech,) = game.load_catalog(tmp_path)
+    assert (tech.sample, tech.framed, tech.prompt) == (1, True, "Country name")
+
+
+@pytest.mark.parametrize("sample", [0, -1, 1.5, "30", True])
+def test_sample_must_be_a_positive_whole_number(tmp_path, sample):
+    write_one_logo_category(tmp_path, sample=sample)
+    with pytest.raises(game.CatalogError, match="'sample' must be a whole number of at least 1"):
+        game.load_catalog(tmp_path)
+
+
+def test_sample_cannot_be_larger_than_the_category(tmp_path):
+    write_one_logo_category(tmp_path, sample=2)
+    with pytest.raises(game.CatalogError, match="'sample' is 2 but only 1 logos are listed"):
+        game.load_catalog(tmp_path)
+
+
+def test_framed_must_be_a_boolean(tmp_path):
+    write_one_logo_category(tmp_path, framed="yes")
+    with pytest.raises(game.CatalogError, match="'framed' must be true or false"):
+        game.load_catalog(tmp_path)
+
+
+def test_prompt_must_be_a_non_empty_string(tmp_path):
+    write_one_logo_category(tmp_path, prompt="")
+    with pytest.raises(game.CatalogError, match="'prompt' must be a non-empty string"):
+        game.load_catalog(tmp_path)
+
+
+def test_draw_pool_without_a_sample_returns_every_image(categories):
+    tech = categories[0].items
+    pool = game.draw_pool(tech, None)
+    assert pool == tech and pool is not tech
+
+
+def test_draw_pool_returns_a_random_subset(categories):
+    tech = categories[0].items
+    pool = game.draw_pool(tech, 1, random.Random(1))
+    assert len(pool) == 1 and set(pool) <= set(tech)
+
+
+def test_draw_pool_varies_between_games(categories):
+    tech = categories[0].items
+    pools = {frozenset(game.draw_pool(tech, 1, random.Random(seed))) for seed in range(20)}
+    assert len(pools) > 1
+
+
+def test_draw_pool_can_sample_the_whole_category(categories):
+    tech = categories[0].items
+    assert set(game.draw_pool(tech, len(tech), random.Random(1))) == set(tech)
