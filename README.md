@@ -33,7 +33,7 @@ docs/              Player-facing docs
 ### How it works
 
 - State (score, best score, images already seen, current image, game-over state) lives in a **signed session cookie**. There is no database and the server keeps no state, which suits Vercel's serverless model.
-- Images are served from `/image/{id}` using opaque ids derived from the file name and its bytes, so the page source never reveals the answer, and a changed image gets a new URL (which is what makes the long-lived caching of those URLs safe). Answers stay on the server.
+- Images are served from `/image/{id}` using opaque ids derived from the file name and its bytes, so the page source never reveals the answer, and a changed image gets a new URL (which is what makes the long-lived caching of those URLs safe). Answers stay on the server, except on the game over screen of a lost game, where the answer is revealed.
 - Routes: `GET /` (menu), `GET /play` (choose a category), `GET /game`, `POST /guess`, `POST /new`, `GET /image/{id}`.
 - The YAML category files in `app/catalog/` define the game modes: their file name prefix sets the menu order, `title` and `description` fill the buttons, `logos` lists the images and the optional `sample` caps how many of them a single game draws at random. Adding a game mode is a new file, not a code change (see [ADR 0003](docs/adr/0003-use-yaml-for-the-catalog.md)).
 

@@ -113,11 +113,16 @@ def create_app(
         mode = session["mode"]
         items = game_items(session)
         score = session.get("score", 0)
+        over = session.get("over")
         current = items.get(session.get("current") or "")
+        # Only a lost game reveals the answer; a won game has no image left to reveal.
+        lost_item = current if over == "lost" else None
         return {
             "mode": mode,
             "mode_label": by_id[mode].title,
-            "over": session.get("over"),
+            "over": over,
+            "answer": lost_item.answer if lost_item else None,
+            "aliases": lost_item.aliases if lost_item else (),
             "image_id": session.get("current"),
             "photo": current.photo if current else False,
             "framed": by_id[mode].framed,
@@ -168,9 +173,9 @@ def create_app(
             return after_guess(request, session)
 
         if not game.is_correct(current, guess):
-            # Game over: the answer is deliberately not revealed or stored in the cookie.
+            # Game over: keep the image id (an opaque hash) so the game over screen can reveal
+            # the answer, which is looked up server-side. Nothing changes in the cookie.
             session["over"] = "lost"
-            session["current"] = None
             return after_guess(request, session)
 
         session["score"] = session.get("score", 0) + 1

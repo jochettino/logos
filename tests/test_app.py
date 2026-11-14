@@ -235,11 +235,22 @@ def test_correct_guess_continues_to_next_logo_without_banner(multi):
     assert "Correct!" not in page and status(page) == (1, 1) and "/image/" in page
 
 
-def test_wrong_guess_ends_game_without_revealing_answer(multi):
+def test_wrong_guess_ends_game_and_reveals_the_answer(multi):
     answer = answer_of(multi)
     page = play(multi, "nope")
     assert "Oh, no!" in page and "Your streak ends here" in page and "Game over" in page and "Play again" in page and "Main menu" in page and "/image/" not in page
-    assert answer not in page and "The answer was" not in page
+    assert f"The answer was <b>{answer}</b>." in page
+
+
+def test_revealed_answer_lists_the_aliases(client):
+    assert "The answer was <b>Java</b> (Java cup)." in play(client, "nope")
+
+
+def test_winning_does_not_reveal_any_answer(multi):
+    page = ""
+    for _ in range(2):
+        page = play(multi, answer_of(multi))
+    assert "The answer was" not in page
 
 
 def test_guess_after_game_over_is_ignored(multi):
@@ -273,7 +284,7 @@ def test_fragment_for_a_wrong_guess_shows_the_game_over_screen(multi):
     answer = answer_of(multi)
     _, fragment = play_swapping(multi, "nope")
     assert "Game over" in fragment and 'data-body-class="lost"' in fragment
-    assert "/image/" not in fragment and answer not in fragment
+    assert "/image/" not in fragment and f"The answer was <b>{answer}</b>" in fragment
 
 
 def test_blank_guess_fragment_keeps_the_same_image(multi):

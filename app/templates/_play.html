@@ -11,7 +11,7 @@
             <p class="drama">Oh, no!</p>
             <p class="drama-sub">Your streak ends here… 💔</p>
             <h2 class="bad">Game over</h2>
-            <p class="lead">That was not the right name.</p>
+            <p class="lead">The answer was <b>{{ answer }}</b>{% if aliases %} ({{ aliases|join(", ") }}){% endif %}.</p>
           {% else %}
             <p class="trophy" aria-hidden="true">🏆</p>
             <h2>You won!</h2>
