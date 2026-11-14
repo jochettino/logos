@@ -407,6 +407,13 @@ def test_bundled_flags_category_plays_a_sample():
     assert flags.framed and flags.prompt == "Country name"
 
 
+def test_bundled_motor_category_plays_a_sample():
+    from app.main import CATALOG_DIR
+
+    motor = {category.id: category for category in game.load_catalog(CATALOG_DIR)}["motor"]
+    assert motor.sample == 30 and len(motor.items) >= 30
+
+
 def test_bundled_flags_are_the_best_known_countries():
     from app.main import CATALOG_DIR
 

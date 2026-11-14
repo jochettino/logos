@@ -28,4 +28,4 @@ The header shows `Score: X · Best: Y`: the correct answers in the current game 
 ## Images
 
 - Every image of a game is shown exactly once, in random order.
-- A game therefore lasts at most as many rounds as images it has: every image of the category, or the random few it draws when the category plays a sample. **Country Flags** keeps the best-known countries (about 60) and draws 30 of them each game.
+- A game therefore lasts at most as many rounds as images it has: every image of the category, or the random few it draws when the category plays a sample. **Country Flags** keeps the best-known countries (about 60) and draws 30 of them each game; **Motor** keeps about 40 well-known brands whose logo does not spell the name, and draws 30.

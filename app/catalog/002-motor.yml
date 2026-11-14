@@ -1,23 +1,21 @@
+# Cars, bikes, trucks and motorsport, from the local theSVG clone.
+# Curated subset: well-known brands only, roughly most famous first, and only
+# marks that do not spell the brand name out. Monograms (BMW, MG, DS, RR) are
+# fine; wordmark logos (Ford, Ferrari, Nissan, Volvo, ...) are left out because
+# they give the answer away. 30 of the 38 are drawn at random per game.
 id: motor
 title: Motor
-description: Cars, bikes and racing
+description: The best-known car, bike and truck brands, 30 at random per game
+sample: 30
 logos:
-  - file: audi.svg
-    answer: Audi
   - file: mercedes-benz.svg
     answer: Mercedes-Benz
     aliases:
       - Mercedes
-  - file: lamborghini.svg
-    answer: Lamborghini
-  - file: bugatti.svg
-    answer: Bugatti
-  - file: bentley.svg
-    answer: Bentley
-  - file: rolls-royce.svg
-    answer: Rolls-Royce
-  - file: maserati.svg
-    answer: Maserati
+  - file: bmw.svg
+    answer: BMW
+  - file: audi.svg
+    answer: Audi
   - file: volkswagen.svg
     answer: Volkswagen
     aliases:
@@ -26,45 +24,77 @@ logos:
     answer: Toyota
   - file: honda.svg
     answer: Honda
-  - file: mazda.svg
-    answer: Mazda
-  - file: subaru.svg
-    answer: Subaru
-  - file: mitsubishi.svg
-    answer: Mitsubishi
+  - file: tesla.svg
+    answer: Tesla
   - file: hyundai.svg
     answer: Hyundai
   - file: chevrolet.svg
     answer: Chevrolet
     aliases:
       - Chevy
-  - file: tesla.svg
-    answer: Tesla
-  - file: yamaha.svg
-    answer: Yamaha
-  - file: acura.svg
-    answer: Acura
-  - file: cadillac.svg
-    answer: Cadillac
-  - file: citroen.svg
-    answer: Citroën
+  - file: renault.svg
+    answer: Renault
+  - file: skoda.svg
+    answer: Skoda
+  - file: seat.svg
+    answer: SEAT
+  - file: mazda.svg
+    answer: Mazda
+  - file: subaru.svg
+    answer: Subaru
+  - file: mitsubishi.svg
+    answer: Mitsubishi
+  - file: suzuki.svg
+    answer: Suzuki
   - file: opel.svg
     answer: Opel
+  - file: citroen.svg
+    answer: Citroën
+  - file: lamborghini.svg
+    answer: Lamborghini
+  - file: bentley.svg
+    answer: Bentley
+  - file: rolls-royce.svg
+    answer: Rolls-Royce
+  - file: bugatti.svg
+    answer: Bugatti
+  - file: maserati.svg
+    answer: Maserati
+  - file: cadillac.svg
+    answer: Cadillac
+  - file: acura.svg
+    answer: Acura
   - file: infiniti.svg
     answer: Infiniti
   - file: polestar.svg
     answer: Polestar
-  - file: skoda.svg
-    answer: Skoda
-  - file: suzuki.svg
-    answer: Suzuki
+  - file: vinfast.svg
+    answer: VinFast
+  - file: koenigsegg.svg
+    answer: Koenigsegg
+  - file: smart.svg
+    answer: smart
+  - file: ds-automobiles.svg
+    answer: DS Automobiles
+    aliases:
+      - DS
+  - file: mg.svg
+    answer: MG
+    aliases:
+      - Morris Garages
   - file: scania.svg
     answer: Scania
   - file: vauxhall.svg
     answer: Vauxhall
-  - file: koenigsegg.svg
-    answer: Koenigsegg
-  - file: dacia.svg
-    answer: Dacia
-  - file: vinfast.svg
-    answer: VinFast
+  - file: tata.svg
+    answer: Tata
+    aliases:
+      - Tata Motors
+  - file: yamaha.svg
+    answer: Yamaha
+  - file: husqvarna.svg
+    answer: Husqvarna
+  - file: rimac-automobili.svg
+    answer: Rimac
+    aliases:
+      - Rimac Automobili
